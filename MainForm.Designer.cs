@@ -33,13 +33,12 @@ namespace Jappy
       System.Windows.Forms.ToolStripMenuItem fileMenu;
       System.Windows.Forms.ToolStripMenuItem exitMenuItem;
       System.Windows.Forms.StatusStrip statusBar;
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+      System.Windows.Forms.SplitContainer dictSplitter;
       this.statusText = new System.Windows.Forms.ToolStripStatusLabel();
-      this.tabControl = new System.Windows.Forms.TabControl();
-      this.dictionaryPage = new System.Windows.Forms.TabPage();
-      this.transSplitter = new System.Windows.Forms.SplitContainer();
       this.dictResults = new Jappy.RicherTextBox();
       this.dictDetails = new Jappy.RicherTextBox();
+      this.tabControl = new System.Windows.Forms.TabControl();
+      this.dictionaryPage = new System.Windows.Forms.TabPage();
       this.dictInput = new System.Windows.Forms.TextBox();
       this.translatePage = new System.Windows.Forms.TabPage();
       this.transOutput = new Jappy.RicherTextBox();
@@ -47,18 +46,23 @@ namespace Jappy
       this.studyPage = new System.Windows.Forms.TabPage();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+      this.examplePage = new System.Windows.Forms.TabPage();
+      this.exampleResults = new Jappy.RicherTextBox();
+      this.exampleInput = new System.Windows.Forms.TextBox();
       menuStrip = new System.Windows.Forms.MenuStrip();
       fileMenu = new System.Windows.Forms.ToolStripMenuItem();
       exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       statusBar = new System.Windows.Forms.StatusStrip();
+      dictSplitter = new System.Windows.Forms.SplitContainer();
       menuStrip.SuspendLayout();
       statusBar.SuspendLayout();
+      dictSplitter.Panel1.SuspendLayout();
+      dictSplitter.Panel2.SuspendLayout();
+      dictSplitter.SuspendLayout();
       this.tabControl.SuspendLayout();
       this.dictionaryPage.SuspendLayout();
-      this.transSplitter.Panel1.SuspendLayout();
-      this.transSplitter.Panel2.SuspendLayout();
-      this.transSplitter.SuspendLayout();
       this.translatePage.SuspendLayout();
+      this.examplePage.SuspendLayout();
       this.SuspendLayout();
       // 
       // menuStrip
@@ -68,7 +72,7 @@ namespace Jappy
       menuStrip.Location = new System.Drawing.Point(0, 0);
       menuStrip.Name = "menuStrip";
       menuStrip.Size = new System.Drawing.Size(599, 24);
-      menuStrip.TabIndex = 0;
+      menuStrip.TabIndex = 10;
       // 
       // fileMenu
       // 
@@ -104,54 +108,25 @@ namespace Jappy
       this.statusText.Text = "Welcome to Jappy!";
       this.statusText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
-      // tabControl
+      // dictSplitter
       // 
-      this.tabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
-      this.tabControl.Controls.Add(this.dictionaryPage);
-      this.tabControl.Controls.Add(this.translatePage);
-      this.tabControl.Controls.Add(this.studyPage);
-      this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tabControl.HotTrack = true;
-      this.tabControl.Location = new System.Drawing.Point(0, 24);
-      this.tabControl.Name = "tabControl";
-      this.tabControl.SelectedIndex = 0;
-      this.tabControl.ShowToolTips = true;
-      this.tabControl.Size = new System.Drawing.Size(599, 359);
-      this.tabControl.TabIndex = 4;
-      this.tabControl.TabStop = false;
+      dictSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
+      dictSplitter.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+      dictSplitter.Location = new System.Drawing.Point(0, 22);
+      dictSplitter.Name = "dictSplitter";
+      dictSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
-      // dictionaryPage
+      // dictSplitter.Panel1
       // 
-      this.dictionaryPage.Controls.Add(this.transSplitter);
-      this.dictionaryPage.Controls.Add(this.dictInput);
-      this.dictionaryPage.Font = new System.Drawing.Font("Verdana", 9F);
-      this.dictionaryPage.Location = new System.Drawing.Point(4, 25);
-      this.dictionaryPage.Name = "dictionaryPage";
-      this.dictionaryPage.Size = new System.Drawing.Size(591, 330);
-      this.dictionaryPage.TabIndex = 0;
-      this.dictionaryPage.Text = "Dictionary";
-      this.dictionaryPage.ToolTipText = "Look up words in the dictionary.";
-      this.dictionaryPage.UseVisualStyleBackColor = true;
+      dictSplitter.Panel1.Controls.Add(this.dictResults);
       // 
-      // transSplitter
+      // dictSplitter.Panel2
       // 
-      this.transSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.transSplitter.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-      this.transSplitter.Location = new System.Drawing.Point(0, 22);
-      this.transSplitter.Name = "transSplitter";
-      this.transSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
-      // 
-      // transSplitter.Panel1
-      // 
-      this.transSplitter.Panel1.Controls.Add(this.dictResults);
-      // 
-      // transSplitter.Panel2
-      // 
-      this.transSplitter.Panel2.Controls.Add(this.dictDetails);
-      this.transSplitter.Size = new System.Drawing.Size(591, 308);
-      this.transSplitter.SplitterDistance = 157;
-      this.transSplitter.TabIndex = 6;
-      this.transSplitter.TabStop = false;
+      dictSplitter.Panel2.Controls.Add(this.dictDetails);
+      dictSplitter.Size = new System.Drawing.Size(591, 308);
+      dictSplitter.SplitterDistance = 157;
+      dictSplitter.TabIndex = 6;
+      dictSplitter.TabStop = false;
       // 
       // dictResults
       // 
@@ -180,10 +155,40 @@ namespace Jappy
       this.dictDetails.ReadOnly = true;
       this.dictDetails.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
       this.dictDetails.Size = new System.Drawing.Size(591, 147);
-      this.dictDetails.TabIndex = 0;
+      this.dictDetails.TabIndex = 3;
       this.dictDetails.TabStop = false;
       this.dictDetails.Text = "";
       this.dictDetails.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_CommonKeyDown);
+      // 
+      // tabControl
+      // 
+      this.tabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+      this.tabControl.Controls.Add(this.dictionaryPage);
+      this.tabControl.Controls.Add(this.translatePage);
+      this.tabControl.Controls.Add(this.examplePage);
+      this.tabControl.Controls.Add(this.studyPage);
+      this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.tabControl.HotTrack = true;
+      this.tabControl.Location = new System.Drawing.Point(0, 24);
+      this.tabControl.Name = "tabControl";
+      this.tabControl.SelectedIndex = 0;
+      this.tabControl.ShowToolTips = true;
+      this.tabControl.Size = new System.Drawing.Size(599, 359);
+      this.tabControl.TabIndex = 4;
+      this.tabControl.TabStop = false;
+      // 
+      // dictionaryPage
+      // 
+      this.dictionaryPage.Controls.Add(dictSplitter);
+      this.dictionaryPage.Controls.Add(this.dictInput);
+      this.dictionaryPage.Font = new System.Drawing.Font("Verdana", 9F);
+      this.dictionaryPage.Location = new System.Drawing.Point(4, 25);
+      this.dictionaryPage.Name = "dictionaryPage";
+      this.dictionaryPage.Size = new System.Drawing.Size(591, 330);
+      this.dictionaryPage.TabIndex = 0;
+      this.dictionaryPage.Text = "Dictionary";
+      this.dictionaryPage.ToolTipText = "Look up words in the dictionary.";
+      this.dictionaryPage.UseVisualStyleBackColor = true;
       // 
       // dictInput
       // 
@@ -192,7 +197,7 @@ namespace Jappy
       this.dictInput.Location = new System.Drawing.Point(0, 0);
       this.dictInput.Name = "dictInput";
       this.dictInput.Size = new System.Drawing.Size(591, 22);
-      this.dictInput.TabIndex = 5;
+      this.dictInput.TabIndex = 0;
       this.dictInput.MouseLeave += new System.EventHandler(this.control_PopStatusText);
       this.dictInput.MouseEnter += new System.EventHandler(this.dictInput_MouseEnter);
       this.dictInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dictInput_KeyPress);
@@ -258,9 +263,47 @@ namespace Jappy
       // 
       // notifyIcon
       // 
-      this.notifyIcon.Icon = Properties.Resources.NotifyIcon;
+      this.notifyIcon.Icon = global::Jappy.Properties.Resources.NotifyIcon;
       this.notifyIcon.Text = "Jappy. Click to restore.";
       this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
+      // 
+      // examplePage
+      // 
+      this.examplePage.Controls.Add(this.exampleResults);
+      this.examplePage.Controls.Add(this.exampleInput);
+      this.examplePage.Font = new System.Drawing.Font("Verdana", 9F);
+      this.examplePage.Location = new System.Drawing.Point(4, 25);
+      this.examplePage.Name = "examplePage";
+      this.examplePage.Size = new System.Drawing.Size(591, 330);
+      this.examplePage.TabIndex = 3;
+      this.examplePage.Text = "Examples";
+      this.examplePage.ToolTipText = "Search example sentences.";
+      this.examplePage.UseVisualStyleBackColor = true;
+      // 
+      // exampleResults
+      // 
+      this.exampleResults.BackColor = System.Drawing.SystemColors.Window;
+      this.exampleResults.DetectUrls = false;
+      this.exampleResults.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.exampleResults.Location = new System.Drawing.Point(0, 20);
+      this.exampleResults.Name = "exampleResults";
+      this.exampleResults.ReadOnly = true;
+      this.exampleResults.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+      this.exampleResults.Size = new System.Drawing.Size(591, 310);
+      this.exampleResults.TabIndex = 4;
+      this.exampleResults.TabStop = false;
+      this.exampleResults.Text = "";
+      // 
+      // exampleInput
+      // 
+      this.exampleInput.BackColor = System.Drawing.SystemColors.Window;
+      this.exampleInput.Dock = System.Windows.Forms.DockStyle.Top;
+      this.exampleInput.Location = new System.Drawing.Point(0, 0);
+      this.exampleInput.Name = "exampleInput";
+      this.exampleInput.Size = new System.Drawing.Size(591, 20);
+      this.exampleInput.TabIndex = 3;
+      this.exampleInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.exampleInput_KeyPress);
+      this.exampleInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_CommonKeyDown);
       // 
       // MainForm
       // 
@@ -270,7 +313,7 @@ namespace Jappy
       this.Controls.Add(this.tabControl);
       this.Controls.Add(statusBar);
       this.Controls.Add(menuStrip);
-      this.Icon = Properties.Resources.JappyIcon;
+      this.Icon = global::Jappy.Properties.Resources.JappyIcon;
       this.MainMenuStrip = menuStrip;
       this.Name = "MainForm";
       this.Text = "Jappy";
@@ -278,14 +321,16 @@ namespace Jappy
       menuStrip.PerformLayout();
       statusBar.ResumeLayout(false);
       statusBar.PerformLayout();
+      dictSplitter.Panel1.ResumeLayout(false);
+      dictSplitter.Panel2.ResumeLayout(false);
+      dictSplitter.ResumeLayout(false);
       this.tabControl.ResumeLayout(false);
       this.dictionaryPage.ResumeLayout(false);
       this.dictionaryPage.PerformLayout();
-      this.transSplitter.Panel1.ResumeLayout(false);
-      this.transSplitter.Panel2.ResumeLayout(false);
-      this.transSplitter.ResumeLayout(false);
       this.translatePage.ResumeLayout(false);
       this.translatePage.PerformLayout();
+      this.examplePage.ResumeLayout(false);
+      this.examplePage.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -295,7 +340,6 @@ namespace Jappy
 
     private System.Windows.Forms.ToolStripStatusLabel statusText;
     private System.Windows.Forms.TabPage dictionaryPage;
-    private System.Windows.Forms.SplitContainer transSplitter;
     private RicherTextBox dictResults;
     private System.Windows.Forms.TextBox dictInput;
     private System.Windows.Forms.TabPage studyPage;
@@ -306,5 +350,8 @@ namespace Jappy
     private System.Windows.Forms.TabControl tabControl;
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.NotifyIcon notifyIcon;
+    private System.Windows.Forms.TabPage examplePage;
+    private RicherTextBox exampleResults;
+    private System.Windows.Forms.TextBox exampleInput;
   }
 }

@@ -388,7 +388,7 @@ public unsafe sealed class IOReader : IOBuffer
         }
         else // otherwise we'll need to move two chunks, using a temporary storage space to hold one of them
         {
-          // this is an edge case so we'll always chose the second chunk for placement in temporary storage.
+          // this is an edge case, so we'll always choose the second chunk for placement in temporary storage.
           // there are potential optimizations that can be done.
           byte[] temp = new byte[headIndex];
           Array.Copy(Buffer, temp, headIndex);
