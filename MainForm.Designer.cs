@@ -43,12 +43,12 @@ namespace Jappy
       this.translatePage = new System.Windows.Forms.TabPage();
       this.transOutput = new Jappy.RicherTextBox();
       this.transInput = new System.Windows.Forms.TextBox();
-      this.studyPage = new System.Windows.Forms.TabPage();
-      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-      this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
       this.examplePage = new System.Windows.Forms.TabPage();
       this.exampleResults = new Jappy.RicherTextBox();
       this.exampleInput = new System.Windows.Forms.TextBox();
+      this.studyPage = new System.Windows.Forms.TabPage();
+      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+      this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
       menuStrip = new System.Windows.Forms.MenuStrip();
       fileMenu = new System.Windows.Forms.ToolStripMenuItem();
       exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -243,7 +243,48 @@ namespace Jappy
       this.transInput.TabIndex = 0;
       this.transInput.MouseLeave += new System.EventHandler(this.control_PopStatusText);
       this.transInput.MouseEnter += new System.EventHandler(this.transInput_MouseEnter);
+      this.transInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.transInput_KeyPress);
       this.transInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_CommonKeyDown);
+      // 
+      // examplePage
+      // 
+      this.examplePage.Controls.Add(this.exampleResults);
+      this.examplePage.Controls.Add(this.exampleInput);
+      this.examplePage.Font = new System.Drawing.Font("Verdana", 9F);
+      this.examplePage.Location = new System.Drawing.Point(4, 25);
+      this.examplePage.Name = "examplePage";
+      this.examplePage.Size = new System.Drawing.Size(591, 330);
+      this.examplePage.TabIndex = 3;
+      this.examplePage.Text = "Examples";
+      this.examplePage.ToolTipText = "Search example sentences.";
+      this.examplePage.UseVisualStyleBackColor = true;
+      // 
+      // exampleResults
+      // 
+      this.exampleResults.BackColor = System.Drawing.SystemColors.Window;
+      this.exampleResults.DetectUrls = false;
+      this.exampleResults.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.exampleResults.Location = new System.Drawing.Point(0, 22);
+      this.exampleResults.Name = "exampleResults";
+      this.exampleResults.ReadOnly = true;
+      this.exampleResults.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+      this.exampleResults.Size = new System.Drawing.Size(591, 308);
+      this.exampleResults.TabIndex = 4;
+      this.exampleResults.TabStop = false;
+      this.exampleResults.Text = "";
+      // 
+      // exampleInput
+      // 
+      this.exampleInput.BackColor = System.Drawing.SystemColors.Window;
+      this.exampleInput.Dock = System.Windows.Forms.DockStyle.Top;
+      this.exampleInput.Location = new System.Drawing.Point(0, 0);
+      this.exampleInput.Name = "exampleInput";
+      this.exampleInput.Size = new System.Drawing.Size(591, 22);
+      this.exampleInput.TabIndex = 3;
+      this.exampleInput.MouseLeave += new System.EventHandler(this.control_PopStatusText);
+      this.exampleInput.MouseEnter += new System.EventHandler(this.exampleInput_MouseEnter);
+      this.exampleInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.exampleInput_KeyPress);
+      this.exampleInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_CommonKeyDown);
       // 
       // studyPage
       // 
@@ -266,44 +307,6 @@ namespace Jappy
       this.notifyIcon.Icon = global::Jappy.Properties.Resources.NotifyIcon;
       this.notifyIcon.Text = "Jappy. Click to restore.";
       this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
-      // 
-      // examplePage
-      // 
-      this.examplePage.Controls.Add(this.exampleResults);
-      this.examplePage.Controls.Add(this.exampleInput);
-      this.examplePage.Font = new System.Drawing.Font("Verdana", 9F);
-      this.examplePage.Location = new System.Drawing.Point(4, 25);
-      this.examplePage.Name = "examplePage";
-      this.examplePage.Size = new System.Drawing.Size(591, 330);
-      this.examplePage.TabIndex = 3;
-      this.examplePage.Text = "Examples";
-      this.examplePage.ToolTipText = "Search example sentences.";
-      this.examplePage.UseVisualStyleBackColor = true;
-      // 
-      // exampleResults
-      // 
-      this.exampleResults.BackColor = System.Drawing.SystemColors.Window;
-      this.exampleResults.DetectUrls = false;
-      this.exampleResults.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.exampleResults.Location = new System.Drawing.Point(0, 20);
-      this.exampleResults.Name = "exampleResults";
-      this.exampleResults.ReadOnly = true;
-      this.exampleResults.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-      this.exampleResults.Size = new System.Drawing.Size(591, 310);
-      this.exampleResults.TabIndex = 4;
-      this.exampleResults.TabStop = false;
-      this.exampleResults.Text = "";
-      // 
-      // exampleInput
-      // 
-      this.exampleInput.BackColor = System.Drawing.SystemColors.Window;
-      this.exampleInput.Dock = System.Windows.Forms.DockStyle.Top;
-      this.exampleInput.Location = new System.Drawing.Point(0, 0);
-      this.exampleInput.Name = "exampleInput";
-      this.exampleInput.Size = new System.Drawing.Size(591, 20);
-      this.exampleInput.TabIndex = 3;
-      this.exampleInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.exampleInput_KeyPress);
-      this.exampleInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_CommonKeyDown);
       // 
       // MainForm
       // 
