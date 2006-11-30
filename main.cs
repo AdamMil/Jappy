@@ -4,6 +4,18 @@ using System.Windows.Forms;
 namespace Jappy
 {
 
+static class Utilities
+{
+  public static void Dispose<T>(ref T disposable) where T : class, IDisposable
+  {
+    if(disposable != null)
+    {
+      disposable.Dispose();
+      disposable = null;
+    }
+  }
+}
+
 static class App
 {
   public static CharacterDictionary CharDict
@@ -31,6 +43,20 @@ static class App
       }
       halfMinutesIdle = 0;
       return examples;
+    }
+  }
+  
+  public static JapaneseDictionary NameDict
+  {
+    get
+    {
+      if(nameDict == null)
+      {
+        nameDict = new JapaneseDictionary();
+        nameDict.Load("e:/names.index", "e:/names.dict");
+      }
+      halfMinutesIdle = 0;
+      return nameDict;
     }
   }
 
@@ -62,8 +88,13 @@ static class App
 //wordDict.ImportJMDict(System.IO.File.OpenRead(@"e:/jmdict_e.xml"));
 //wordDict.Save("e:/words.index", "e:/words.dict");
 
+//JapaneseDictionary nameDict = new JapaneseDictionary();
+//nameDict.ImportJMDict(System.IO.File.OpenRead(@"e:/JMnedict.xml"));
+//nameDict.Save("e:/names.index", "e:/names.dict");
+
     Application.EnableVisualStyles();
     Application.SetCompatibleTextRenderingDefault(false);
+    Application.ThreadException += Application_ThreadException;
 
     idleTimer = new Timer();
     idleTimer.Interval = 30000;
@@ -73,6 +104,11 @@ static class App
     Application.Run(new MainForm());
   }
 
+  static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+  {
+    MessageBox.Show("Unhandled exception:\n"+e.Exception.ToString(), "Unhandled exception");
+  }
+
   static void idleTimer_Tick(object sender, System.EventArgs e)
   {
     halfMinutesIdle++;
@@ -80,12 +116,9 @@ static class App
 
     if(halfMinutesIdle == 10) // after 5 minutes idle, unload the dictionaries.
     {
-      charDict.Dispose();
-      examples.Dispose();
-      wordDict.Dispose();
-      charDict = null;
-      examples = null;
-      wordDict = null;
+      Utilities.Dispose(ref charDict);
+      Utilities.Dispose(ref examples);
+      Utilities.Dispose(ref wordDict);
       GC.Collect();
     }
   }
@@ -94,7 +127,7 @@ static class App
   static int halfMinutesIdle;
   static CharacterDictionary charDict;
   static ExampleSentences examples;
-  static JapaneseDictionary wordDict;
+  static JapaneseDictionary wordDict, nameDict;
 }
 
 } // namespace Jappy

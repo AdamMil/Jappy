@@ -394,6 +394,7 @@ public sealed class SubtractionIterator : IEnumerable<uint>
     {
       this.add      = add;
       this.subtract = subtract;
+      this.moreToSubtract = true;
     }
 
     public uint Current
@@ -409,7 +410,7 @@ public sealed class SubtractionIterator : IEnumerable<uint>
     {
       if(!current.HasValue) // if this is the first time, attempt to move 'subtract' to the first value
       {
-        subtractDone = subtract.MoveNext();
+        moreToSubtract = subtract.MoveNext();
       }
 
       do
@@ -422,12 +423,12 @@ public sealed class SubtractionIterator : IEnumerable<uint>
 
         current = add.Current;
 
-        while(!subtractDone && subtract.Current < current.Value) // loop until we know whether we can return or not
+        while(moreToSubtract && subtract.Current < current.Value) // loop until we know whether we can return or not
         {
-          subtractDone = subtract.MoveNext();
+          moreToSubtract = subtract.MoveNext();
         }
 
-      } while(!subtractDone && subtract.Current == current.Value); // if it's in both enumerators, we can't return it
+      } while(moreToSubtract && subtract.Current == current.Value); // if it's in both enumerators, we can't return it
 
       // at this point, subtract is done or subtract.Current is greater than current.Value, so we can return it
       return true;
@@ -437,7 +438,7 @@ public sealed class SubtractionIterator : IEnumerable<uint>
     {
       current = null;
       subtract.Reset();
-      subtractDone = false;
+      moreToSubtract = true;
       add.Reset();
     }
 
@@ -453,7 +454,7 @@ public sealed class SubtractionIterator : IEnumerable<uint>
     }
 
     readonly IEnumerator<uint> add, subtract;
-    bool subtractDone;
+    bool moreToSubtract;
     uint? current;
   }
 
