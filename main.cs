@@ -53,7 +53,7 @@ static class App
       if(nameDict == null)
       {
         nameDict = new JapaneseDictionary();
-        nameDict.Load("e:/names.index", "e:/names.dict");
+        nameDict.Load("Names", "e:/names.index", "e:/names.dict");
       }
       halfMinutesIdle = 0;
       return nameDict;
@@ -67,7 +67,7 @@ static class App
       if(wordDict == null)
       {
         wordDict = new JapaneseDictionary();
-        wordDict.Load("e:/words.index", "e:/words.dict");
+        wordDict.Load("Word", "e:/words.index", "e:/words.dict");
       }
       halfMinutesIdle = 0;
       return wordDict;

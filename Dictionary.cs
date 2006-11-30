@@ -101,6 +101,7 @@ public class DefaultSearchStrategy : SearchStrategy
 #region Dictionary
 public abstract class Dictionary
 {
+  public abstract string Name { get; }
   public abstract IEnumerable<uint> Search(SearchPiece piece);
 }
 #endregion
