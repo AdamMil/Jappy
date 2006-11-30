@@ -317,6 +317,7 @@ namespace Jappy
       this.Controls.Add(statusBar);
       this.Controls.Add(menuStrip);
       this.Icon = global::Jappy.Properties.Resources.JappyIcon;
+      this.KeyPreview = true;
       this.MainMenuStrip = menuStrip;
       this.Name = "MainForm";
       this.Text = "Jappy";
