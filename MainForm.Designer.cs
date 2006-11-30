@@ -31,8 +31,9 @@ namespace Jappy
       this.components = new System.ComponentModel.Container();
       System.Windows.Forms.MenuStrip menuStrip;
       System.Windows.Forms.ToolStripMenuItem fileMenu;
-      System.Windows.Forms.StatusStrip statusBar;
       System.Windows.Forms.ToolStripMenuItem exitMenuItem;
+      System.Windows.Forms.StatusStrip statusBar;
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
       this.statusText = new System.Windows.Forms.ToolStripStatusLabel();
       this.tabControl = new System.Windows.Forms.TabControl();
       this.dictionaryPage = new System.Windows.Forms.TabPage();
@@ -45,10 +46,11 @@ namespace Jappy
       this.transInput = new System.Windows.Forms.TextBox();
       this.studyPage = new System.Windows.Forms.TabPage();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+      this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
       menuStrip = new System.Windows.Forms.MenuStrip();
       fileMenu = new System.Windows.Forms.ToolStripMenuItem();
-      statusBar = new System.Windows.Forms.StatusStrip();
       exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      statusBar = new System.Windows.Forms.StatusStrip();
       menuStrip.SuspendLayout();
       statusBar.SuspendLayout();
       this.tabControl.SuspendLayout();
@@ -75,6 +77,14 @@ namespace Jappy
       fileMenu.Name = "fileMenu";
       fileMenu.Size = new System.Drawing.Size(35, 20);
       fileMenu.Text = "&File";
+      // 
+      // exitMenuItem
+      // 
+      exitMenuItem.Name = "exitMenuItem";
+      exitMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+      exitMenuItem.Size = new System.Drawing.Size(132, 22);
+      exitMenuItem.Text = "E&xit";
+      exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
       // 
       // statusBar
       // 
@@ -246,13 +256,11 @@ namespace Jappy
       // 
       this.toolTip.IsBalloon = true;
       // 
-      // exitMenuItem
+      // notifyIcon
       // 
-      exitMenuItem.Name = "exitMenuItem";
-      exitMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-      exitMenuItem.Size = new System.Drawing.Size(152, 22);
-      exitMenuItem.Text = "E&xit";
-      exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
+      this.notifyIcon.Icon = Properties.Resources.NotifyIcon;
+      this.notifyIcon.Text = "Jappy. Click to restore.";
+      this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
       // 
       // MainForm
       // 
@@ -262,6 +270,7 @@ namespace Jappy
       this.Controls.Add(this.tabControl);
       this.Controls.Add(statusBar);
       this.Controls.Add(menuStrip);
+      this.Icon = Properties.Resources.JappyIcon;
       this.MainMenuStrip = menuStrip;
       this.Name = "MainForm";
       this.Text = "Jappy";
@@ -296,5 +305,6 @@ namespace Jappy
     private RicherTextBox transOutput;
     private System.Windows.Forms.TabControl tabControl;
     private System.Windows.Forms.ToolTip toolTip;
+    private System.Windows.Forms.NotifyIcon notifyIcon;
   }
 }

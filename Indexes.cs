@@ -7,40 +7,6 @@ using System.IO;
 namespace Jappy
 {
 
-/* Index optimization:
- * There are three types of indices in the Japanese dictionary (headword, readings, meanings), and they all have
- * different characteristics.
- * 
- *                            Headwords     Readings      Meanings
- * Largest index array                5           28         10803
- * Average index array             1.01         1.21          9.96
- * Bytes to store size info        464k         307k          150k
- * Bytes to store strings         1281k        1150k          740k
- * Bytes to store indices          468k         373k         1498k
- * Alphabet size                   4734          102            36
- * Shared prefixes between keys    Some         Lots         Lots!
- * 
- * The headword index has a nearly 1:1 mapping between keys and entries. This leads to a large waste of space storing
- * sizes (on disk) and one-length array objects (in memory). The keys have some shared prefixes, but this is very
- * limited due to the large alphabet size and extensive use of kanji as the first character of the key.
- * 
- * The readings index has a nearly 1:1 mapping between keys and entries but has more multi-value index arrays in there.
- * There's still a lot of wasted space storing sizes (on disk) and one-length array objects (in memory). In addition,
- * a lot of space is wasted storing strings due to the fact that the keys have a lot of shared prefixes.
- * 
- * The meanings index is about 1:10 between keys and entries and has some very large index arrays. A lot of space is
- * wasted storing strings due to the large number of shared prefixes in this index.
- * 
- * Currently all of these indexes are stored in memory.
- * 
- * For the Readings and Meanings indexes, the following structure is proposed:
- * 
- * The keys will be stored in a trie kept in memory. The data will be stored in a dword-aligned section of the disk
- * file, except where the data can fit within a single uint (ie, when there's a 1:1 mapping from key to entry ID).
- * 
- * 
-*/
-
 #region Index
 public abstract class Index : IDisposable
 {
@@ -615,9 +581,7 @@ public class MemoryHashIndex : Index
           }
         }
 
-        enumerable = enumerables.Count == 0 ? EmptyIterator.Instance :
-                     enumerables.Count == 1 ? enumerables[0] :
-                     new UnionIterator(enumerables);
+        enumerable = DictionaryUtilities.GetUnion(enumerables);
       }
 
       return enumerable.GetEnumerator();
@@ -652,7 +616,7 @@ public class TrieIndex : Index
       {
         if(!charMap.ContainsKey(c))
         {
-          if(charMap.Count == 127) throw new InvalidOperationException("The alphabet size must be <= 127.");
+          if(charMap.Count == 255) throw new InvalidOperationException("The alphabet size must be <= 255.");
           charMap.Add(c, (byte)charMap.Count);
         }
       }
@@ -745,7 +709,7 @@ public class TrieIndex : Index
           int childIndex = FindChild(nodePtr, nchildren, key[i]);
           if(childIndex == -1) break;
           
-          if(childIndex == 0 && (nodePtr[1]&0x40) != 0) // if it's the first child and its index is implicit...
+          if(childIndex == 0 && (nodePtr[1]&2) != 0) // if it's the first child and its index is implicit...
           {
             nodePos += sizeof(ushort)+sizeof(byte); // it's at a fixed offset from the current node
             continue;
@@ -769,10 +733,10 @@ public class TrieIndex : Index
         
         // we're pointing at the node matching this key. it's not a leaf node, but if it has a value, we have a match
         nodePtr = data+nodePos;
-        if((nodePtr[1] & 0x80) != 0) // if the node has a value
+        if((nodePtr[1] & 1) != 0) // if the node has a value
         {
           int nchildren = GetNumberOfChildren(nodePtr);
-          if(nchildren == 1 && (nodePtr[1]&0x40) != 0) // if there's only one child and its index is implicit...
+          if(nchildren == 1 && (nodePtr[1]&2) != 0) // if there's only one child and its index is implicit...
           {
             nodePtr += sizeof(ushort)+sizeof(byte); // it's at a fixed offset from the current node
           }
@@ -810,7 +774,7 @@ public class TrieIndex : Index
 
     static unsafe int FindChild(byte* nodePtr, int nchildren, byte b)
     {
-      nodePtr += 2;
+      nodePtr += 2; // skip the 'cLength' and 'flags' fields
 
       int left=0, right = nchildren-1; // do a binary search to find the index of the child node with the given value
       while(left <= right)
@@ -826,7 +790,7 @@ public class TrieIndex : Index
     
     static unsafe int GetNumberOfChildren(byte* nodePtr)
     {
-      return (nodePtr[0] | (nodePtr[1]<<8)) & 0x3FFF;
+      return nodePtr[0];
     }
   }
   #endregion
@@ -946,22 +910,20 @@ public class TrieIndex : Index
      * The trie will have the following node layout:
      * 
      * FIELD        TYPE      DESCRIPTION
-     * cLength      ushort    A 14-bit count of the number of child nodes in this node.
-     *                        The high bit indicates whether this node contains a value.
-     *                        The second highest bit, if set, indicates that the node contains only a single child
+     * cLength      byte      A count of the number of child nodes in this node.
+     * flags        byte      The first (lowest) bit indicates whether this node contains a value.
+     *                        The second bit, if set, indicates that the node contains only a single child
      *                        which begins immediately after the current node, and childIndices will be empty. This is
      *                        to handle the strings of non-shared characters, where we want to minimize overhead.
-     * childChars   byte[]    A number of bytes equal to the count from 'cCount'. These are the characters for the
+     * childChars   byte[]    A number of bytes equal to 'cCount'. These are the characters for the
      *                        child nodes, sorted by ordinal.
-     * childIndices index[]   A number of index pointers to the child nodes of this node equal to the count from
-     *                        'cCount'. If the second highest bit of cLength is set, this field will be empty.
+     * childIndices index[]   A number of index pointers to the child nodes of this node equal to 'cCount'.
+     *                        If the second bit of 'flags' is set, this field will be empty.
      * myIndex?     index     The value for this node. An index into the data (with the high bit set to 1).
-     *                        This value will only exist if the high bit of 'cCount' is set.
+     *                        This value will only exist if the low bit of 'flags' is set.
      */
 
-    ushort cLength = (ushort)(node.Children == null ? 0 : node.Children.Count);
-    if(cLength > 0x3FFF) throw new InvalidOperationException("Too many child nodes.");
-
+    byte cLength = (byte)(node.Children == null ? 0 : node.Children.Count);
     byte[] childChars = null;
     uint[] childIndices = null;
     bool indexIsImplicit = false;
@@ -999,14 +961,17 @@ public class TrieIndex : Index
       writer.Position = savedPosition;
     }
 
-    if(node.Entries != null) cLength |= 0x8000;
+    // create the 'flags' field
+    byte flags = 0;
+    if(node.Entries != null) flags |= 1;
     if(childIndices.Length == 1 && childIndices[0] == 0)
     {
-      cLength |= 0x4000; // mark that there is only one child and its position is implicit
+      flags |= 2; // mark that there is only one child and its position is implicit
       indexIsImplicit = true;
     }
 
     writer.Add(cLength); // write the cLength field
+    writer.Add(flags);   // and the 'flags' field
 
     uint indicesPosition = 0;
     if(node.Children != null) // now write the childChars and childIndices fields if we have children. we may need to

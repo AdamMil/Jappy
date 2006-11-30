@@ -116,6 +116,75 @@ public sealed class EntryIterator : IEnumerable<Entry>
 }
 #endregion
 
+#region ExampleIterator
+public sealed class ExampleIterator : IEnumerable<ExampleSentence>
+{
+  public ExampleIterator(ExampleSentences examples, IEnumerable<uint> iterator)
+  {
+    this.examples = examples;
+    this.iterator = iterator;
+  }
+
+  sealed class ExampleEnumerator : IEnumerator<ExampleSentence>
+  {
+    public ExampleEnumerator(ExampleSentences examples, IEnumerator<uint> iterator)
+    {
+      this.examples   = examples;
+      this.enumerator = iterator;
+    }
+
+    public ExampleSentence Current
+    {
+      get
+      {
+        if(!current.HasValue) throw new InvalidOperationException();
+        return current.Value;
+      }
+    }
+
+    public bool MoveNext()
+    {
+      if(!enumerator.MoveNext()) return false;
+      current = examples.GetExampleById(enumerator.Current);
+      return true;
+    }
+
+    public void Reset()
+    {
+      current = null;
+      enumerator.Reset();
+    }
+
+    object IEnumerator.Current
+    {
+      get { return Current; }
+    }
+
+    void IDisposable.Dispose()
+    {
+      enumerator.Dispose();
+    }
+
+    readonly ExampleSentences examples;
+    readonly IEnumerator<uint> enumerator;
+    ExampleSentence? current;
+  }
+
+  public IEnumerator<ExampleSentence> GetEnumerator()
+  {
+    return new ExampleEnumerator(examples, iterator.GetEnumerator());
+  }
+
+  IEnumerator IEnumerable.GetEnumerator()
+  {
+    return GetEnumerator();
+  }
+
+  readonly ExampleSentences examples;
+  readonly IEnumerable<uint> iterator;
+}
+#endregion
+
 #region SingleItemIterator
 public sealed class SingleItemIterator : IEnumerable<uint>
 {
