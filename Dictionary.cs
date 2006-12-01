@@ -131,20 +131,24 @@ public static class DictionaryUtilities
     foreach(KeyValuePair<string,List<uint>> pair in idMap)
     {
       sortedList.AddRange(pair.Value);
-      sortedList.Sort(); // sort the array
-      uint lastKey = ~sortedList[sortedList.Count-1]; // set the last key to something other than the first key
-      for(int i=sortedList.Count-1; i>=0; i--) // and remove duplicates
-      {
-        uint key = sortedList[i];
-        if(key != lastKey) lastKey = key;
-        else sortedList.RemoveAt(i);
-      }
-
+      DictionaryUtilities.SortAndRemoveDuplicates(sortedList);
       index.Add(pair.Key, sortedList.ToArray());
       sortedList.Clear();
     }
     
     index.FinishedAdding();
+  }
+  
+  public static void SortAndRemoveDuplicates(List<uint> ids)
+  {
+    ids.Sort(); // sort the array
+    uint lastKey = ~ids[ids.Count-1]; // set the last key to something other than the first key
+    for(int i=ids.Count-1; i>=0; i--) // and remove duplicates
+    {
+      uint key = ids[i];
+      if(key != lastKey) lastKey = key;
+      else ids.RemoveAt(i);
+    }
   }
 }
 #endregion
