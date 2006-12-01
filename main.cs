@@ -85,11 +85,11 @@ static class App
 //charDict.Save("e:/kanji.dict");
 
 //JapaneseDictionary wordDict = new JapaneseDictionary();
-//wordDict.ImportJMDict(System.IO.File.OpenRead(@"e:/jmdict_e.xml"));
+//wordDict.ImportJMDict(new System.IO.Compression.GZipStream(System.IO.File.OpenRead(@"e:/words.xml.gz"), System.IO.Compression.CompressionMode.Decompress));
 //wordDict.Save("e:/words.index", "e:/words.dict");
 
 //JapaneseDictionary nameDict = new JapaneseDictionary();
-//nameDict.ImportJMDict(System.IO.File.OpenRead(@"e:/JMnedict.xml"));
+///nameDict.ImportJMDict(new System.IO.Compression.GZipStream(System.IO.File.OpenRead(@"e:/names.xml.gz"), System.IO.Compression.CompressionMode.Decompress));
 //nameDict.Save("e:/names.index", "e:/names.dict");
 
     Application.EnableVisualStyles();
@@ -116,10 +116,10 @@ static class App
 
     if(halfMinutesIdle == 10) // after 5 minutes idle, unload the dictionaries.
     {
-      Utilities.Dispose(ref charDict);
+      /*Utilities.Dispose(ref charDict); we can't do this as long as TextRegions are holding references to dictionaries
       Utilities.Dispose(ref examples);
       Utilities.Dispose(ref wordDict);
-      GC.Collect();
+      GC.Collect();*/
     }
   }
 
