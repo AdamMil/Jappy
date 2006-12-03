@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Jappy
+namespace Jappy.Backend
 {
 
 #region EmptyIterator
@@ -608,4 +608,4 @@ public sealed class UnionIterator : IEnumerable<uint>
 }
 #endregion
 
-} // namespace Jappy
+} // namespace Jappy.Backend

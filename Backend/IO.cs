@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace Jappy
+namespace Jappy.Backend
 {
 
 #region IOBuffer
@@ -676,4 +676,4 @@ public unsafe sealed class IOWriter : IOBuffer
 }
 #endregion
 
-} // namespace Jappy
+} // namespace Jappy.Backend

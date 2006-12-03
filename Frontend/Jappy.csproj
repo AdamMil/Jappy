@@ -36,19 +36,8 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharacterDictionary.cs" />
-    <Compile Include="Dictionary.cs" />
-    <Compile Include="ExampleSentences.cs" />
-    <Compile Include="Indexes.cs" />
-    <Compile Include="Iterators.cs" />
-    <Compile Include="JapaneseDictionary.cs" />
-    <Compile Include="StringCompressor.cs" />
-    <Compile Include="WordDictionary.cs" />
-    <Compile Include="IO.cs" />
-    <Compile Include="Japanese.cs" />
     <Compile Include="main.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -83,11 +72,16 @@
     <Compile Include="RicherTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WordTranslation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Jappy.ico" />
     <Content Include="NotifyIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Backend\Backend.csproj">
+      <Project>{B2882923-35FC-45CE-9256-B4BE47F2E444}</Project>
+      <Name>Backend</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
