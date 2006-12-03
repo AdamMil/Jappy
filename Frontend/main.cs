@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Jappy
@@ -18,6 +19,16 @@ static class Utilities
 
 static class App
 {
+  static App()
+  {
+    #if DEBUG
+    exeDir = "e:/";
+    #else
+    exeDir = "e:/";//Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
+                   //       "dictionaries");
+    #endif
+  }
+
   public static CharacterDictionary CharDict
   {
     get
@@ -25,7 +36,7 @@ static class App
       if(charDict == null)
       {
         charDict = new CharacterDictionary();
-        charDict.Load("e:/kanji.dict");
+        charDict.Load(Path.Combine(exeDir, "kanji.dict"));
       }
       halfMinutesIdle = 0;
       return charDict;
@@ -39,7 +50,7 @@ static class App
       if(examples == null)
       {
         examples = new ExampleSentences();
-        examples.Load("e:/examples.dict");
+        examples.Load(Path.Combine(exeDir, "examples.dict"));
       }
       halfMinutesIdle = 0;
       return examples;
@@ -53,7 +64,7 @@ static class App
       if(nameDict == null)
       {
         nameDict = new JapaneseDictionary();
-        nameDict.Load("Names", "e:/names.index", "e:/names.dict");
+        nameDict.Load("Names", Path.Combine(exeDir, "names.index"), Path.Combine(exeDir, "names.dict"));
       }
       halfMinutesIdle = 0;
       return nameDict;
@@ -67,7 +78,7 @@ static class App
       if(wordDict == null)
       {
         wordDict = new JapaneseDictionary();
-        wordDict.Load("Word", "e:/words.index", "e:/words.dict");
+        wordDict.Load("Word", Path.Combine(exeDir, "words.index"), Path.Combine(exeDir, "words.dict"));
       }
       halfMinutesIdle = 0;
       return wordDict;
@@ -128,6 +139,8 @@ static class App
   static CharacterDictionary charDict;
   static ExampleSentences examples;
   static JapaneseDictionary wordDict, nameDict;
+  
+  static readonly string exeDir;
 }
 
 } // namespace Jappy
