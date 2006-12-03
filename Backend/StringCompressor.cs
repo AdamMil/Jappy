@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Jappy
+namespace Jappy.Backend
 {
 
 public sealed class StringCompressor
@@ -312,4 +312,4 @@ public sealed class StringCompressor
   }
 }
 
-} // namespace Jappy
+} // namespace Jappy.Backend

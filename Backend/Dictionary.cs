@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Jappy
+namespace Jappy.Backend
 {
 
 #region Search strategy
@@ -153,4 +153,4 @@ public static class DictionaryUtilities
 }
 #endregion
 
-} // namespace Jappy
+} // namespace Jappy.Backend
