@@ -90,9 +90,24 @@ public class DefaultSearchStrategy : SearchStrategy
     get { return splitRE; }
   }
 
-  protected virtual void PreprocessSearchPiece(ref SearchPiece piece) { }
+  protected virtual void PreprocessSearchPiece(ref SearchPiece piece)
+  {
+    if((piece.Type & PieceType.Quoted) == 0)
+    {
+      if(piece.Text.StartsWith("*"))
+      {
+        piece.Text = piece.Text.Substring(1);
+        piece.Flags &= ~SearchFlag.MatchStart;
+      }
+      if(piece.Text.EndsWith("*"))
+      {
+        piece.Text = piece.Text.Substring(0, piece.Text.Length-1);
+        piece.Flags &= ~SearchFlag.MatchEnd;
+      }
+    }
+  }
 
-  static readonly Regex splitRE = new Regex(@"-?(?:""[^""]+""|\w+)",
+  static readonly Regex splitRE = new Regex(@"-?(?:""[^""]+""|\*?\w+\*?)",
                                             RegexOptions.CultureInvariant | RegexOptions.Singleline);
 }
 #endregion
