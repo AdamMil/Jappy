@@ -184,6 +184,11 @@ public unsafe sealed class IOReader : IOBuffer
     get { return this.stream; }
   }
 
+  public bool EOF
+  {
+    get { return AvailableData == 0 && stream.Position == stream.Length; }
+  }
+
   public long Position
   {
     get { return stream.Position - AvailableData; }
