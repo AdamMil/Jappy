@@ -45,7 +45,7 @@
       <DependentUpon>AdvancedDictionarySearchDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls.cs">
-      <SubType>Component</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="DictionarySearchTab.cs">
       <SubType>UserControl</SubType>
@@ -58,6 +58,9 @@
     </Compile>
     <Compile Include="ExampleSearchTab.Designer.cs">
       <DependentUpon>ExampleSearchTab.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InfoRenderer.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="main.cs" />
     <Compile Include="MainForm.cs">
@@ -75,6 +78,10 @@
       <SubType>Designer</SubType>
       <DependentUpon>DictionarySearchTab.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ExampleSearchTab.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ExampleSearchTab.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -83,6 +90,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TranslateTab.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TranslateTab.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -29,7 +29,7 @@ namespace Jappy
     private void InitializeComponent()
     {
       System.Windows.Forms.SplitContainer dictSplitter;
-      LinkLabel lblAdvanced;
+      Jappy.LinkLabel lblAdvanced;
       System.Windows.Forms.Label lblDictionary;
       this.cmbDictionary = new Jappy.DictionaryDropdown();
       this.chkCommon = new System.Windows.Forms.CheckBox();
@@ -37,7 +37,7 @@ namespace Jappy
       this.resultList = new Jappy.RicherTextBox();
       this.details = new Jappy.RicherTextBox();
       dictSplitter = new System.Windows.Forms.SplitContainer();
-      lblAdvanced = new LinkLabel();
+      lblAdvanced = new Jappy.LinkLabel();
       lblDictionary = new System.Windows.Forms.Label();
       dictSplitter.Panel1.SuspendLayout();
       dictSplitter.Panel2.SuspendLayout();
@@ -74,6 +74,9 @@ namespace Jappy
       // 
       // lblAdvanced
       // 
+      lblAdvanced.Cursor = System.Windows.Forms.Cursors.Hand;
+      lblAdvanced.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Underline);
+      lblAdvanced.ForeColor = System.Drawing.Color.Blue;
       lblAdvanced.Location = new System.Drawing.Point(444, 30);
       lblAdvanced.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblAdvanced.Name = "lblAdvanced";
@@ -89,7 +92,7 @@ namespace Jappy
       lblDictionary.Name = "lblDictionary";
       lblDictionary.Size = new System.Drawing.Size(76, 19);
       lblDictionary.TabIndex = 6;
-      lblDictionary.Text = "&Dictionary:";
+      lblDictionary.Text = "Dictionary:";
       lblDictionary.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // cmbDictionary
@@ -126,7 +129,10 @@ namespace Jappy
       this.input.Name = "input";
       this.input.Size = new System.Drawing.Size(562, 22);
       this.input.TabIndex = 3;
+      this.input.MouseLeave += new System.EventHandler(this.common_MouseLeave);
+      this.input.MouseEnter += new System.EventHandler(this.input_MouseEnter);
       this.input.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.input_KeyPress);
+      this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.input_KeyDown);
       // 
       // resultList
       // 
@@ -144,6 +150,8 @@ namespace Jappy
       this.resultList.TabIndex = 2;
       this.resultList.TabStop = false;
       this.resultList.Text = "";
+      this.resultList.MouseEnter += new System.EventHandler(this.resultList_MouseEnter);
+      this.resultList.MouseLeave += new System.EventHandler(this.common_MouseLeave);
       // 
       // details
       // 
