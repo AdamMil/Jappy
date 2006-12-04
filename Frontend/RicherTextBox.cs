@@ -7,7 +7,7 @@ namespace Jappy
 {
 
 #region TextRegion
-public abstract class TextRegion
+public abstract class TextRegion2
 {
   public event MouseEventHandler MouseClick, MouseEnter, MouseHover;
   public event EventHandler MouseLeave, DoubleClick;
@@ -114,7 +114,7 @@ public abstract class TextRegion
 #region RicherTextBox
 public class RicherTextBox : RichTextBox
 {
-  public void AddRegion(string text, TextRegion region)
+  public void AddRegion(string text, TextRegion2 region)
   {
     if(region == null) throw new ArgumentNullException();
     if(region.textBox != null) throw new ArgumentException("This region already belongs to a text box.");
@@ -125,7 +125,7 @@ public class RicherTextBox : RichTextBox
     SelectionColor = region.Color;
   }
 
-  public void AddRegion(int start, int length, TextRegion region)
+  public void AddRegion(int start, int length, TextRegion2 region)
   {
     if(region == null) throw new ArgumentNullException();
     if(region.textBox != null) throw new ArgumentException("This region already belongs to a text box.");
@@ -188,7 +188,7 @@ public class RicherTextBox : RichTextBox
   {
     base.Clear();
 
-    foreach(TextRegion region in regions)
+    foreach(TextRegion2 region in regions)
     {
       region.textBox = null;
     }
@@ -222,10 +222,10 @@ public class RicherTextBox : RichTextBox
   }
 
   /// <summary>Returns the shortest region that contains the given index.</summary>
-  protected TextRegion GetRegionFromCharIndex(int index)
+  protected TextRegion2 GetRegionFromCharIndex(int index)
   {
-    TextRegion shortest = null;
-    foreach(TextRegion region in regions)
+    TextRegion2 shortest = null;
+    foreach(TextRegion2 region in regions)
     {
       if(region.Contains(index) && (shortest == null || region.Length < shortest.Length))
       {
@@ -235,7 +235,7 @@ public class RicherTextBox : RichTextBox
     return shortest;
   }
   
-  protected TextRegion GetRegionFromPosition(Point pt)
+  protected TextRegion2 GetRegionFromPosition(Point pt)
   {
     return GetRegionFromCharIndex(GetCharIndexFromPosition(pt));
   }
@@ -253,7 +253,7 @@ public class RicherTextBox : RichTextBox
 
     if(xd*xd+yd*yd < 4) // if the mouse moved too far since the button was pressed, don't count it as a click
     {
-      TextRegion region = GetRegionFromPosition(mouseDown);
+      TextRegion2 region = GetRegionFromPosition(mouseDown);
       if(region != null)
       {
         region.OnMouseClick(e);
@@ -267,7 +267,7 @@ public class RicherTextBox : RichTextBox
   {
     base.OnDoubleClick(e);
 
-    TextRegion region = GetRegionFromPosition(this.PointToClient(Cursor.Position));
+    TextRegion2 region = GetRegionFromPosition(this.PointToClient(Cursor.Position));
     if(region != null)
     {
       region.OnDoubleClick(e);
@@ -279,7 +279,7 @@ public class RicherTextBox : RichTextBox
     base.OnMouseHover(e);
 
     Point position = this.PointToClient(Cursor.Position);
-    TextRegion region = GetRegionFromPosition(position);
+    TextRegion2 region = GetRegionFromPosition(position);
     if(region != null)
     {
       region.OnMouseHover(new MouseEventArgs(MouseButtons.None, 0, position.X, position.Y, 0));
@@ -305,7 +305,7 @@ public class RicherTextBox : RichTextBox
       }
     }
 
-    foreach(TextRegion region in regions)
+    foreach(TextRegion2 region in regions)
     {
       if(region.Contains(index) && !inside.Contains(region))
       {
@@ -321,7 +321,7 @@ public class RicherTextBox : RichTextBox
 
     if(inside.Count != 0)
     {
-      foreach(TextRegion region in inside)
+      foreach(TextRegion2 region in inside)
       {
         region.OnMouseLeave(e);
       }
@@ -334,8 +334,8 @@ public class RicherTextBox : RichTextBox
     return style == font.Style ? font : new Font(font, style);
   }
 
-  List<TextRegion> regions = new List<TextRegion>();
-  List<TextRegion> inside = new List<TextRegion>();
+  List<TextRegion2> regions = new List<TextRegion2>();
+  List<TextRegion2> inside = new List<TextRegion2>();
   
   Point mouseDown;
   int selStart, selLength;

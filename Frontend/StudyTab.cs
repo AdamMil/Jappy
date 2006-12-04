@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace Jappy
 {
 
-public partial class StudyTab : UserControl
+partial class StudyTab : TabBase
 {
   public StudyTab()
   {

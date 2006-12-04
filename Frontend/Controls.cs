@@ -45,4 +45,30 @@ class LinkLabel : Label
 }
 #endregion
 
+#region TabBase
+class TabBase : UserControl
+{
+  protected MainForm Form
+  {
+    get { return (MainForm)FindForm(); }
+  }
+  
+  protected void textBox_CommonKeyDown(object sender, KeyEventArgs e)
+  {
+    TextBoxBase box = (TextBoxBase)sender;
+
+    if(e.KeyCode == Keys.A && e.Modifiers == Keys.Control) // ctrl-A means "Select All"
+    {
+      box.SelectAll();
+      e.Handled = true;
+    }
+  }
+  
+  protected void control_RestoreStatusText(object sender, EventArgs e)
+  {
+    Form.RestoreStatusText((Control)sender);
+  }
+}
+#endregion
+
 } // namespace Jappy
