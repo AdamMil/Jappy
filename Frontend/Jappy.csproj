@@ -38,6 +38,27 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvancedDictionarySearchDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdvancedDictionarySearchDialog.Designer.cs">
+      <DependentUpon>AdvancedDictionarySearchDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DictionarySearchTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DictionarySearchTab.Designer.cs">
+      <DependentUpon>DictionarySearchTab.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExampleSearchTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ExampleSearchTab.Designer.cs">
+      <DependentUpon>ExampleSearchTab.cs</DependentUpon>
+    </Compile>
     <Compile Include="main.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -46,6 +67,14 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AdvancedDictionarySearchDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AdvancedDictionarySearchDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DictionarySearchTab.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>DictionarySearchTab.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -71,6 +100,18 @@
     </Compile>
     <Compile Include="RicherTextBox.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="StudyTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StudyTab.Designer.cs">
+      <DependentUpon>StudyTab.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TranslateTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TranslateTab.Designer.cs">
+      <DependentUpon>TranslateTab.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -79,7 +79,7 @@ static class App
       if(wordDict == null)
       {
         wordDict = new JapaneseDictionary();
-        wordDict.Load("Word", Path.Combine(exeDir, "words.index"), Path.Combine(exeDir, "words.dict"));
+        wordDict.Load("edict", Path.Combine(exeDir, "words.index"), Path.Combine(exeDir, "words.dict"));
       }
       halfMinutesIdle = 0;
       return wordDict;
