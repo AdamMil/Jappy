@@ -34,8 +34,8 @@ namespace Jappy
       this.cmbDictionary = new Jappy.DictionaryDropdown();
       this.chkCommon = new System.Windows.Forms.CheckBox();
       this.input = new System.Windows.Forms.TextBox();
-      this.resultList = new Jappy.RicherTextBox();
-      this.details = new Jappy.RicherTextBox();
+      this.resultList = new Jappy.DocumentRenderer();
+      this.details = new Jappy.DocumentRenderer();
       dictSplitter = new System.Windows.Forms.SplitContainer();
       lblAdvanced = new Jappy.LinkLabel();
       lblDictionary = new System.Windows.Forms.Label();
@@ -80,7 +80,7 @@ namespace Jappy
       lblAdvanced.Location = new System.Drawing.Point(444, 30);
       lblAdvanced.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblAdvanced.Name = "lblAdvanced";
-      lblAdvanced.Size = new System.Drawing.Size(121, 15);
+      lblAdvanced.Size = new System.Drawing.Size(116, 15);
       lblAdvanced.TabIndex = 7;
       lblAdvanced.Text = "Advanced Search";
       lblAdvanced.Click += new System.EventHandler(this.lblAdvanced_Click);
@@ -139,34 +139,29 @@ namespace Jappy
       this.resultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.resultList.BackColor = System.Drawing.SystemColors.Window;
-      this.resultList.DetectUrls = false;
+      this.resultList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+      this.resultList.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.resultList.Location = new System.Drawing.Point(0, 52);
       this.resultList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.resultList.Name = "resultList";
-      this.resultList.ReadOnly = true;
-      this.resultList.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
       this.resultList.Size = new System.Drawing.Size(562, 274);
       this.resultList.TabIndex = 2;
       this.resultList.TabStop = false;
-      this.resultList.Text = "";
-      this.resultList.MouseEnter += new System.EventHandler(this.resultList_MouseEnter);
       this.resultList.MouseLeave += new System.EventHandler(this.common_MouseLeave);
+      this.resultList.MouseEnter += new System.EventHandler(this.resultList_MouseEnter);
       // 
       // details
       // 
       this.details.BackColor = System.Drawing.SystemColors.Window;
-      this.details.DetectUrls = false;
+      this.details.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+      this.details.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.details.Dock = System.Windows.Forms.DockStyle.Fill;
       this.details.Location = new System.Drawing.Point(0, 0);
       this.details.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.details.Name = "details";
-      this.details.ReadOnly = true;
-      this.details.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
       this.details.Size = new System.Drawing.Size(564, 101);
       this.details.TabIndex = 3;
       this.details.TabStop = false;
-      this.details.Text = "";
       // 
       // DictionarySearchTab
       // 
@@ -190,7 +185,7 @@ namespace Jappy
     private DictionaryDropdown cmbDictionary;
     private System.Windows.Forms.CheckBox chkCommon;
     private System.Windows.Forms.TextBox input;
-    private RicherTextBox resultList;
-    private RicherTextBox details;
+    private DocumentRenderer resultList;
+    private DocumentRenderer details;
   }
 }

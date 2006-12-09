@@ -16,8 +16,8 @@ partial class AdvancedDictionarySearchDialog : Form
     pos.Items.Add(new PosItem("Adjectives", SenseFlag.Adj, SenseFlag.AdjNa, SenseFlag.AdjNo, SenseFlag.AdjPn,
                                             SenseFlag.AdjTaru, SenseFlag.AuxiliaryAdj));
     pos.Items.Add(new PosItem("Adverbs", SenseFlag.Adv, SenseFlag.AdvN, SenseFlag.AdvTo, SenseFlag.NounAdv));
-    pos.Items.Add(new PosItem("Nouns", SenseFlag.Noun, SenseFlag.NounAdv, SenseFlag.NounPrefix, SenseFlag.NounSuffix,
-                                       SenseFlag.NounTemporal));
+    pos.Items.Add(new PosItem("Nouns",   SenseFlag.Noun, SenseFlag.NounAdv, SenseFlag.NounPrefix,
+                                         SenseFlag.NounSuffix, SenseFlag.NounTemporal));
     pos.Items.Add(new PosItem("Particles", SenseFlag.Particle));
     pos.Items.Add(new PosItem("Verbs", SenseFlag.Verb1, SenseFlag.Verb5, SenseFlag.Verb5Aru, SenseFlag.Verb5bu,
                               SenseFlag.Verb5gu, SenseFlag.Verb5ku, SenseFlag.Verb5kuSpecial, SenseFlag.Verb5mu,

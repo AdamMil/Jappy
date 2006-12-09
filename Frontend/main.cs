@@ -86,6 +86,8 @@ static class App
     }
   }
 
+  public static readonly Random Random = new Random();
+
   static void Main()
   {
 //ExampleSentences examples = new ExampleSentences();

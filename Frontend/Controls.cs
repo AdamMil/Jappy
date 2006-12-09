@@ -71,4 +71,21 @@ class TabBase : UserControl
 }
 #endregion
 
+static class UI
+{
+  static UI()
+  {
+    JpStyle = new Style();
+    JpStyle.FontName = "MS PGothic";
+
+    UnderlinedStyle = new Style();
+    UnderlinedStyle.FontStyle = FontStyle.Underline;
+
+    BoldStyle = new Style();
+    BoldStyle.FontStyle = FontStyle.Bold;
+  }
+
+  public static readonly Style JpStyle, UnderlinedStyle, BoldStyle;
+}
+
 } // namespace Jappy
