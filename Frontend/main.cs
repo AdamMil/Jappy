@@ -30,6 +30,11 @@ static class App
     #endif
   }
 
+  public static MainForm MainForm
+  {
+    get { return mainForm; }
+  }
+
   public static CharacterDictionary CharDict
   {
     get
@@ -91,7 +96,7 @@ static class App
   static void Main()
   {
 //ExampleSentences examples = new ExampleSentences();
-//examples.ImportModifiedTanakaCorpusInUTF8("e:/examples.txt");
+//examples.ImportModifiedTanakaCorpusInUTF8(new System.IO.Compression.GZipStream(File.OpenRead("e:/examples.txt.gz"), System.IO.Compression.CompressionMode.Decompress));
 //examples.Save("e:/examples.dict");
 
 //CharacterDictionary charDict = new CharacterDictionary();
@@ -115,7 +120,8 @@ static class App
     idleTimer.Tick += idleTimer_Tick;
     idleTimer.Start();
 
-    Application.Run(new MainForm());
+    mainForm = new MainForm();
+    Application.Run(mainForm);
   }
 
   static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
@@ -142,6 +148,7 @@ static class App
   static CharacterDictionary charDict;
   static ExampleSentences examples;
   static JapaneseDictionary wordDict, nameDict;
+  static MainForm mainForm;
   
   static readonly string exeDir;
 }

@@ -386,23 +386,23 @@ class DocumentNode
   #endregion
 
   #region User input events
-  protected internal virtual void OnDoubleClick(EventArgs e)
+  protected internal virtual void OnDoubleClick(object sender, EventArgs e)
   {
-    if(parentNode != null) parentNode.OnDoubleClick(e);
+    if(parentNode != null) parentNode.OnDoubleClick(sender, e);
   }
 
-  protected internal virtual void OnMouseClick(MouseEventArgs e)
+  protected internal virtual void OnMouseClick(object sender, MouseEventArgs e)
   {
-    if(parentNode != null) parentNode.OnMouseClick(e);
+    if(parentNode != null) parentNode.OnMouseClick(sender, e);
   }
 
-  protected internal virtual void OnMouseHover(MouseEventArgs e)
+  protected internal virtual void OnMouseHover(object sender, MouseEventArgs e)
   {
-    if(parentNode != null) parentNode.OnMouseHover(e);
+    if(parentNode != null) parentNode.OnMouseHover(sender, e);
   }
 
-  protected internal virtual void OnMouseEnter(MouseEventArgs e) { }
-  protected internal virtual void OnMouseLeave(EventArgs e) { }
+  protected internal virtual void OnMouseEnter(object sender, MouseEventArgs e) { }
+  protected internal virtual void OnMouseLeave(object sender, EventArgs e) { }
   #endregion
 
   protected void NeedRepaint()
@@ -557,12 +557,12 @@ class LinkNode : TextNode
     hoverStyle.FontStyle = FontStyle.Underline;
   }
 
-  protected internal override void OnMouseEnter(MouseEventArgs e)
+  protected internal override void OnMouseEnter(object sender, MouseEventArgs e)
   {
     AddStyle(hoverStyle);
   }
 
-  protected internal override void OnMouseLeave(EventArgs e)
+  protected internal override void OnMouseLeave(object sender, EventArgs e)
   {
     RemoveStyle(hoverStyle);
   }
@@ -798,6 +798,18 @@ class DocumentRenderer : Control
     get { return document; }
   }
 
+  public int SelectionStart
+  {
+    get { return selStart; }
+    set { Select(value, SelectionLength); }
+  }
+  
+  public int SelectionLength
+  {
+    get { return selLength; }
+    set { Select(SelectionStart, value); }
+  }
+
   public void Clear()
   {
     Document.Clear();
@@ -835,6 +847,16 @@ class DocumentRenderer : Control
     }
   }
 
+  public void Select(int start, int length)
+  {
+    throw new NotImplementedException();
+  }
+
+  public void SelectAll()
+  {
+    Select(0, Document.Text.Length);
+  }
+
   protected override void OnPaint(PaintEventArgs e)
   {
     base.OnPaint(e);
@@ -859,7 +881,24 @@ class DocumentRenderer : Control
   protected override void OnSizeChanged(EventArgs e)
   {
     base.OnSizeChanged(e);
-    InvalidateLayout();
+
+    if(rootBlock != null)
+    {
+      if(previousWidth != Width || CreateOrDestroyScrollbar())
+      {
+        InvalidateLayout();
+      }
+    }
+    
+    if(scrollBar != null)
+    {
+      using(Graphics gdi = Graphics.FromHwnd(Handle))
+      {
+        ResizeScrollbar(gdi);
+      }
+    }
+
+    previousWidth = Width;
   }
 
   #region Layout
@@ -1055,31 +1094,12 @@ class DocumentRenderer : Control
       rootBlock = CreateBlock(gdi, document.Root.Children, renderRect.Width);
 
       // if we need to show or hide the scrollbar, do so and re-layout
-      if(rootBlock.Bounds.Bottom < renderRect.Height && scrollBar != null)
+      if(CreateOrDestroyScrollbar())
       {
-        Controls.Remove(scrollBar);
-        scrollBar = null;
         rootBlock = CreateBlock(gdi, document.Root.Children, RenderRect.Width);
       }
-      else if(rootBlock.Bounds.Bottom > renderRect.Height && scrollBar == null)
-      {
-        scrollBar = new VScrollBar();
-        scrollBar.Cursor  = Cursors.Default;
-        scrollBar.ValueChanged += scrollBar_ValueChanged;
-        Controls.Add(scrollBar);
-        rootBlock = CreateBlock(gdi, document.Root.Children, RenderRect.Width);
-      }
-
-      if(scrollBar != null) // if the scrollbar should be displayed, update its range and page size
-      {
-        scrollBar.Top    = BorderWidth;
-        scrollBar.Left   = Width - BorderWidth - scrollBar.Width;
-        scrollBar.Height = Height - BorderWidth*2;
-
-        scrollBar.Maximum     = rootBlock.Bounds.Bottom;
-        scrollBar.SmallChange = (int)Math.Ceiling(document.Root.GetEffectiveFont().GetHeight(gdi));
-        scrollBar.LargeChange = renderRect.Height - scrollBar.SmallChange;
-      }
+      
+      ResizeScrollbar(gdi);
     }
   }
 
@@ -1195,13 +1215,6 @@ class DocumentRenderer : Control
         foreach(Match match in wordRE.Matches(lineMatch.Groups[1].Value)) // for each word in the blob of text
         {
           string word = match.Value; // get the word (plus whitespace)
-
-          if(spans.Count == 0 && span.TextLength == 0) // if the current line is empty
-          {
-            string trimmed = word.TrimStart(); // trim whitespace from the start of the word
-            span.TextStart += word.Length-trimmed.Length; // offset the span start by the number of characters trimmed
-            word = trimmed;
-          }
 
           int spaceLeft = availableWidth-currentWidth; // calculate the remaining horizontal space
           // and measure to see whether this text fits within that space
@@ -1328,7 +1341,7 @@ class DocumentRenderer : Control
     if(xd*xd+yd*yd < 4) // if the mouse moved too far since the button was pressed, don't count it as a click
     {
       DocumentNode node = GetNodeFromPosition(mouseDown);
-      if(node != null) node.OnMouseClick(e);
+      if(node != null) node.OnMouseClick(this, e);
       // we don't handle tracking of individual buttons, so make sure additional button releases don't retrigger it
       mouseDown = new Point(-1000, -1000); 
     }
@@ -1338,7 +1351,7 @@ class DocumentRenderer : Control
     base.OnDoubleClick(e);
 
     DocumentNode node = GetNodeFromPosition(this.PointToClient(Cursor.Position));
-    if(node != null) node.OnDoubleClick(e);
+    if(node != null) node.OnDoubleClick(this, e);
   }
 
   protected override void OnMouseHover(EventArgs e)
@@ -1349,7 +1362,7 @@ class DocumentRenderer : Control
     DocumentNode node = GetNodeFromPosition(position);
     if(node != null)
     {
-      node.OnMouseHover(new MouseEventArgs(MouseButtons.None, 0, position.X, position.Y, 0));
+      node.OnMouseHover(this, new MouseEventArgs(MouseButtons.None, 0, position.X, position.Y, 0));
     }
   }
 
@@ -1369,11 +1382,11 @@ class DocumentRenderer : Control
     List<DocumentNode> before = GetAncestorList(inside), after = GetAncestorList(node);
     if(inside == null) // if it wasn't over a node before but now is, call Enter from the root down to it
     {
-      for(int i=after.Count-1; i>=0; i--) after[i].OnMouseEnter(e);
+      for(int i=after.Count-1; i>=0; i--) after[i].OnMouseEnter(this, e);
     }
     else if(node == null) // otherwise, if it was over before but now isn't, call Leave from the root down to it
     {
-      for(int i=0; i<before.Count; i++) before[i].OnMouseLeave(e);
+      for(int i=0; i<before.Count; i++) before[i].OnMouseLeave(this, e);
     }
     else // otherwise, it was over a node both times
     {
@@ -1388,8 +1401,8 @@ class DocumentRenderer : Control
       }
       
       // now call Leave and Enter on the nodes that need it
-      for(int i=before.Count-1; i>=diffIndex; i--) before[i].OnMouseLeave(e);
-      for(int i=diffIndex; i<after.Count; i++) after[i].OnMouseEnter(e);
+      for(int i=before.Count-1; i>=diffIndex; i--) before[i].OnMouseLeave(this, e);
+      for(int i=diffIndex; i<after.Count; i++) after[i].OnMouseEnter(this, e);
     }
     
     inside = node;
@@ -1402,7 +1415,7 @@ class DocumentRenderer : Control
 
     while(inside != null)
     {
-      inside.OnMouseLeave(e);
+      inside.OnMouseLeave(this, e);
       inside = inside.Parent;
     }
   }
@@ -1421,6 +1434,17 @@ class DocumentRenderer : Control
   }
   #endregion
 
+  protected override void OnKeyDown(KeyEventArgs e)
+  {
+    base.OnKeyDown(e);
+
+    if(!e.Handled && e.KeyCode == Keys.A && e.Modifiers == Keys.Control) // ctrl-A means "Select All"
+    {
+      SelectAll();
+      e.Handled = true;
+    }
+  }
+
   int BorderWidth
   {
     get { return borderStyle == BorderStyle.Fixed3D ? 2 : borderStyle == BorderStyle.FixedSingle ? 1 : 0; }
@@ -1436,6 +1460,26 @@ class DocumentRenderer : Control
       if(scrollBar != null) rect.Width -= scrollBar.Width; // account for the scroll bar
       return rect;
     }
+  }
+
+  bool CreateOrDestroyScrollbar()
+  {
+    Rectangle renderRect = RenderRect;
+    if(rootBlock.Bounds.Bottom < renderRect.Height && scrollBar != null)
+    {
+      Controls.Remove(scrollBar);
+      scrollBar = null;
+      return true;
+    }
+    else if(rootBlock.Bounds.Bottom > renderRect.Height && scrollBar == null)
+    {
+      scrollBar = new VScrollBar();
+      scrollBar.Cursor  = Cursors.Default;
+      scrollBar.ValueChanged += scrollBar_ValueChanged;
+      Controls.Add(scrollBar);
+      return true;
+    }
+    else return false;
   }
 
   TextRegion GetNodeFromPosition(Point pt, TextRegion parent)
@@ -1480,6 +1524,20 @@ class DocumentRenderer : Control
     if(rect.IntersectsWith(ClientRectangle)) Invalidate(rect);
   }
 
+  void ResizeScrollbar(Graphics gdi)
+  {
+    if(scrollBar != null && rootBlock != null) // if the scrollbar should be displayed, update its range and page size
+    {
+      scrollBar.Top    = BorderWidth;
+      scrollBar.Left   = Width - BorderWidth - scrollBar.Width;
+      scrollBar.Height = Height - BorderWidth*2;
+
+      scrollBar.Maximum     = rootBlock.Bounds.Bottom;
+      scrollBar.SmallChange = (int)Math.Ceiling(document.Root.GetEffectiveFont().GetHeight(gdi));
+      scrollBar.LargeChange = RenderRect.Height - scrollBar.SmallChange;
+    }
+  }
+
   void scrollBar_ValueChanged(object sender, EventArgs e)
   {
     Invalidate();
@@ -1491,6 +1549,7 @@ class DocumentRenderer : Control
   BlockBase rootBlock;
   DocumentNode inside;
   Point mouseDown;
+  int previousWidth, selStart, selLength;
 
   static List<DocumentNode> GetAncestorList(DocumentNode node)
   {
@@ -1507,7 +1566,7 @@ class DocumentRenderer : Control
     return list;
   }
 
-  static readonly Regex wordRE = new Regex(@"\s*\S+\s*", RegexOptions.Singleline);
+  static readonly Regex wordRE = new Regex(@"\s*(\S+\s*)?", RegexOptions.Singleline);
   static readonly Regex lineRE = new Regex(@"(?<eol>\r\n?|\n)|([^\r\n]+)(?<eol>\r\n?|\n)?",
                                            RegexOptions.Singleline | RegexOptions.Compiled);
 }

@@ -28,24 +28,19 @@ namespace Jappy
     /// </summary>
     private void InitializeComponent()
     {
-      this.output = new Jappy.RicherTextBox();
+      this.output = new Jappy.DocumentRenderer();
       this.input = new System.Windows.Forms.TextBox();
       this.SuspendLayout();
       // 
       // output
       // 
-      this.output.BackColor = System.Drawing.SystemColors.Window;
-      this.output.DetectUrls = false;
       this.output.Dock = System.Windows.Forms.DockStyle.Fill;
       this.output.Location = new System.Drawing.Point(0, 22);
       this.output.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.output.Name = "output";
-      this.output.ReadOnly = true;
-      this.output.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
       this.output.Size = new System.Drawing.Size(200, 140);
       this.output.TabIndex = 6;
       this.output.TabStop = false;
-      this.output.Text = "";
       // 
       // input
       // 
@@ -77,7 +72,7 @@ namespace Jappy
 
     #endregion
 
-    private RicherTextBox output;
+    private DocumentRenderer output;
     private System.Windows.Forms.TextBox input;
   }
 }
