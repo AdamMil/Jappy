@@ -45,7 +45,7 @@
       <DependentUpon>AdvancedDictionarySearchDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DictionarySearchTab.cs">
       <SubType>UserControl</SubType>
@@ -90,6 +90,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StudyTab.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>StudyTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TranslateTab.resx">
       <SubType>Designer</SubType>
