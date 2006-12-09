@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 using Jappy.Backend;
 
@@ -14,12 +15,19 @@ partial class TranslateTab : TabBase
     InitializeComponent();
   }
 
+  static TranslateTab()
+  {
+    matchedStyle = new Style();
+    matchedStyle.ForeColor = Color.Blue;
+  }
+
   public void PerformTranslation(string text)
   {
     if(text == null) throw new ArgumentNullException();
 
     input.Text = text;
     output.Clear();
+    SwitchToTab();
 
     WordTranslator translator = new WordTranslator();
     translator.WordDictionaries.Add(App.WordDict);
@@ -27,19 +35,20 @@ partial class TranslateTab : TabBase
 
     TranslatedWord[] words = translator.TranslateWordsInJapaneseText(text);
 
+    DocumentNode root = output.Document.Root;
     int lastEnd = 0; // the end of the previous word
     bool oddWord = false;
     foreach(TranslatedWord word in words)
     {
-      if(lastEnd < word.Position) output.AppendText(text.Substring(lastEnd, word.Position-lastEnd));
-      output.AppendText(text.Substring(word.Position, word.Length),
-                             oddWord ? Color.Blue : Color.DarkGreen);
+      if(lastEnd < word.Position) root.Children.Add(new TextNode(text.Substring(lastEnd, word.Position-lastEnd)));
+      root.Children.Add(new TextNode(text.Substring(word.Position, word.Length)+" ", matchedStyle));
       lastEnd = word.Position + word.Length;
       oddWord = !oddWord;
     }
-    if(lastEnd < text.Length) output.AppendText(text.Substring(lastEnd, text.Length-lastEnd));
-    output.AppendText("\n\n");
+    if(lastEnd < text.Length) root.Children.Add(new TextNode(text.Substring(lastEnd, text.Length-lastEnd)));
+    root.Children.Add(new TextNode("\n\n"));
 
+    DictionarySearchTab tab = Form.GetDictionarySearchTab();
     foreach(TranslatedWord word in words)
     {
       // TODO: instead of rendering each entry on its own line, merge multiple entries into one.
@@ -47,7 +56,8 @@ partial class TranslateTab : TabBase
       {
         if(entry.Inflection != InflectionType.None)
         {
-          output.AppendText("Possible inflected word");
+          StringBuilder sb = new StringBuilder();
+          sb.Append("Possible inflected word");
           if(entry.Inflection != InflectionType.Unknown)
           {
             List<string> modifiers = new List<string>(4);
@@ -60,12 +70,13 @@ partial class TranslateTab : TabBase
             if((entry.Inflection & InflectionType.Polite) != 0) modifiers.Add("polite");
             else if((entry.Inflection & InflectionType.Plain) != 0) modifiers.Add("plain");
 
-            output.AppendText(" ("+string.Join(", ", modifiers.ToArray())+")");
+            sb.Append(" (").Append(string.Join(", ", modifiers.ToArray())).Append(')');
           }
-          output.AppendText(":\n");
+          sb.Append(":\n- ");
+          root.Children.Add(new TextNode(sb.ToString()));
         }
 
-        //RenderDictionaryEntryTo(word.Dictionary, word.Dictionary.GetEntryById(entry.EntryId), -1, output, true);
+        UI.RenderDictionaryEntry(word.Dictionary, word.Dictionary.GetEntryById(entry.EntryId), -1, tab, root, true);
       }
     }
   }
@@ -92,6 +103,8 @@ partial class TranslateTab : TabBase
   {
     base.control_RestoreStatusText(sender, e);
   }
+  
+  static readonly Style matchedStyle;
 }
 
 } // namespace Jappy
