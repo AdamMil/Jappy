@@ -3,9 +3,11 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Schema;
+using Jappy.Backend;
 
 namespace Jappy
 {
@@ -17,46 +19,6 @@ partial class StudyTab : TabBase
   {
     InitializeComponent();
     EnableStudyMenu(false);
-    
-    list = new StudyList();
-    
-    foreach(char c in App.CharDict.RetrieveAll())
-    {
-      Backend.Kanji kanji;
-      App.CharDict.TryGetKanjiData(c, out kanji);
-      
-      if(kanji.Level == Jappy.Backend.Level.Second && kanji.Readings != null)
-      {
-        StudyList.Item item = new StudyList.Item();
-        item.Phrase = c.ToString();
-
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        foreach(Backend.Reading reading in kanji.Readings)
-        {
-          if(reading.Type == Jappy.Backend.ReadingType.Kun || reading.Type == Jappy.Backend.ReadingType.On)
-          {
-            if(sb.Length != 0) sb.Append(", ");
-            sb.Append(reading.Text);
-          }
-        }
-        item.Readings = sb.Length == 0 ? "<unknown reading>" : sb.ToString();
-        
-        sb.Length = 0;
-        foreach(Backend.Reading reading in kanji.Readings)
-        {
-          if(reading.Type == Jappy.Backend.ReadingType.English)
-          {
-            if(sb.Length != 0) sb.Append(", ");
-            sb.Append(reading.Text);
-          }
-        }
-        item.Meanings = sb.Length == 0 ? "<unknown meaning>" : sb.ToString();
-        
-        list.Items.Add(item);
-      }
-    }
-    
-    OnListLoaded();
   }
   
   static StudyTab()
@@ -390,7 +352,7 @@ partial class StudyTab : TabBase
 
   void fileMenu_DropDownOpening(object sender, EventArgs e)
   {
-    /*newEntryMenuItem.Enabled = */saveListMenuItem.Enabled = saveListAsMenuItem.Enabled = IsListLoaded;
+    newEntryMenuItem.Enabled = saveListMenuItem.Enabled = saveListAsMenuItem.Enabled = IsListLoaded;
   }
 
   void newEmptyListMenuItem_Click(object sender, EventArgs e)
@@ -398,7 +360,7 @@ partial class StudyTab : TabBase
     CreateNewList();
   }
 
-  void loadStudylistToolStripMenuItem_Click(object sender, EventArgs e)
+  void loadStudylistMenuItem_Click(object sender, EventArgs e)
   {
     LoadList();
   }
@@ -431,6 +393,54 @@ partial class StudyTab : TabBase
   void output_MouseClick(object sender, MouseEventArgs e)
   {
     doc_MouseClick(sender, e);
+  }
+
+  void newListFromKanji_Click(object sender, EventArgs e)
+  {
+    if(!TryCloseList()) return;
+
+    Level level = (Level)((ToolStripMenuItem)sender).Tag;
+
+    list = new StudyList();
+    list.Name = level.ToString() + " level kanji";
+
+    foreach(char c in App.CharDict.RetrieveAll())
+    {
+      Kanji kanji;
+      App.CharDict.TryGetKanjiData(c, out kanji);
+
+      if(kanji.Level == level && kanji.Readings != null)
+      {
+        StudyList.Item item = new StudyList.Item();
+        item.Phrase = c.ToString();
+
+        StringBuilder sb = new StringBuilder();
+        foreach(Backend.Reading reading in kanji.Readings)
+        {
+          if(reading.Type == Jappy.Backend.ReadingType.Kun || reading.Type == Jappy.Backend.ReadingType.On)
+          {
+            if(sb.Length != 0) sb.Append(", ");
+            sb.Append(reading.Text);
+          }
+        }
+        item.Readings = sb.Length == 0 ? "<unknown reading>" : sb.ToString();
+
+        sb.Length = 0;
+        foreach(Backend.Reading reading in kanji.Readings)
+        {
+          if(reading.Type == Jappy.Backend.ReadingType.English)
+          {
+            if(sb.Length != 0) sb.Append(", ");
+            sb.Append(reading.Text);
+          }
+        }
+        item.Meanings = sb.Length == 0 ? "<unknown meaning>" : sb.ToString();
+        
+        list.Items.Add(item);
+      }
+    }
+    
+    OnListLoaded();
   }
 
   StudyList list;
