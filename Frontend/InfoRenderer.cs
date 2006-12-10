@@ -17,7 +17,40 @@ struct TextSpan
     Length = length;
   }
 
+  public int End
+  {
+    get { return Start + Length; }
+  }
+
+  public bool Contains(TextSpan span)
+  {
+    return Start <= span.Start && End >= span.End && Length > 0 && span.Length > 0;
+  }
+
+  public bool Contains(int offset)
+  {
+    return Start <= offset && offset < End;
+  }
+
+  public bool Intersects(TextSpan span)
+  {
+    return span.End > Start && span.Start < End && Length > 0 && span.Length > 0;
+  }
+
+  public override bool Equals(object obj)
+  {
+    return obj is TextSpan ? this == (TextSpan)obj : false;
+  }
+  
+  public override int GetHashCode()
+  {
+ 	  return Start ^ Length;
+  }
+
   public int Start, Length;
+  
+  public static bool operator==(TextSpan a, TextSpan b) { return a.Start == b.Start && a.Length == b.Length; }
+  public static bool operator!=(TextSpan a, TextSpan b) { return a.Start != b.Start || a.Length != b.Length; }
 }
 #endregion
 
@@ -238,17 +271,31 @@ class DocumentNode
 
   public void SetStyles(params Style[] styles)
   {
-    if(this.styles == null)
+    if(styles == null)
     {
-      if(styles.Length == 0) return;
-      this.styles = new List<Style>();
+      throw new ArgumentNullException();
+    }
+    else if(styles.Length == 0)
+    {
+      if(this.styles != null && this.styles.Count != 0)
+      {
+        this.styles.Clear();
+        NeedRepaint();
+      }
     }
     else
     {
-      this.styles.Clear();
+      foreach(Style style in styles)
+      {
+        if(style == null) throw new ArgumentException("Array contained a null value.");
+      }
+
+      if(this.styles == null) this.styles = new List<Style>(2);
+      else if(styles.Length != 0) this.styles.Clear();
+
+      this.styles.AddRange(styles);
+      NeedRepaint();
     }
-    this.styles.AddRange(styles);
-    NeedRepaint();
   }
 
   int FindStyle(Style style)
@@ -780,6 +827,12 @@ class DocumentRenderer : Control
     document.NodeChanged += delegate(Document doc, DocumentNode node) { InvalidateLayout(); };
   }
 
+  public bool AllowSelection
+  {
+    get { return allowSelection; }
+    set { allowSelection = value; }
+  }
+
   public BorderStyle BorderStyle
   {
     get { return borderStyle; }
@@ -798,16 +851,27 @@ class DocumentRenderer : Control
     get { return document; }
   }
 
+  public TextSpan Selection
+  {
+    get { return selection; }
+    set { Select(value.Start, value.Length); }
+  }
+
   public int SelectionStart
   {
-    get { return selStart; }
+    get { return selection.Start; }
     set { Select(value, SelectionLength); }
   }
   
   public int SelectionLength
   {
-    get { return selLength; }
+    get { return selection.Length; }
     set { Select(SelectionStart, value); }
+  }
+
+  public string SelectedText
+  {
+    get { return SelectionLength == 0 ? string.Empty : Document.Text.Substring(SelectionStart, SelectionLength); }
   }
 
   public void Clear()
@@ -816,26 +880,30 @@ class DocumentRenderer : Control
     if(scrollBar != null) scrollBar.Value = 0;
   }
 
+  public void Copy()
+  {
+    if(SelectionLength != 0) Clipboard.SetText(SelectedText);
+  }
+
   public DocumentNode GetNodeFromPosition(Point pt)
   {
     Layout();
-
-    Rectangle bounds = scrollBar == null ? rootBlock.Bounds : rootBlock.GetAdjustedBounds(scrollBar.Value);
-    pt.Offset(BorderWidth, BorderWidth);
-
-    Span span;
-    if(bounds.Contains(pt))
-    {
-      span = GetNodeFromPosition(pt, rootBlock) as Span;
-    }
-    else
-    {
-      span = null;
-    }
-
+    pt.Offset(BorderWidth, BorderWidth + (scrollBar == null ? 0 : scrollBar.Value));
+    Span span = rootBlock.Bounds.Contains(pt) ? GetNodeFromPosition(pt, rootBlock) as Span : null;
     return span == null ? null : span.Node;
   }
 
+  public int GetOffsetFromPosition(Point pt)
+  {
+    Layout();
+    pt.Offset(BorderWidth, BorderWidth + (scrollBar == null ? 0 : scrollBar.Value));
+
+    using(Graphics gdi = Graphics.FromHwnd(Handle))
+    {
+      return rootBlock.GetCharOffset(gdi, pt);
+    }
+  }
+  
   public new void Layout()
   {
     if(rootBlock == null)
@@ -849,7 +917,28 @@ class DocumentRenderer : Control
 
   public void Select(int start, int length)
   {
-    throw new NotImplementedException();
+    TextSpan proposedSelection = new TextSpan(start, length);
+    if(proposedSelection != selection)
+    {
+      TextSpan documentSpan = new TextSpan(0, Document.Text.Length);
+      if(start < 0 || length < 0 ||
+         length == 0 && start != documentSpan.Length && !documentSpan.Contains(start) ||
+         length != 0 && !documentSpan.Contains(proposedSelection))
+      {
+        throw new ArgumentOutOfRangeException();
+      }
+
+      // we don't want to invalidate if we simply go from one zero-length selection to another
+      bool shouldInvalidate = selection.Length != 0 || proposedSelection.Length != 0;
+
+      selection = proposedSelection;
+      if(shouldInvalidate) Invalidate(); // TODO: we should do minimal invalidation
+    }
+  }
+
+  public void DeselectAll()
+  {
+    Select(0, 0);
   }
 
   public void SelectAll()
@@ -868,8 +957,12 @@ class DocumentRenderer : Control
       e.Graphics.FillRectangle(bgBrush, e.ClipRectangle);
     }
 
-    Rectangle renderRect = RenderRect, clipRect = Rectangle.Intersect(e.ClipRectangle, renderRect);
-    rootBlock.Render(e.Graphics, ref renderRect, ref clipRect, scrollBar == null ? 0 : scrollBar.Value);
+    Rectangle renderRect = RenderRect;
+    RenderData data = new RenderData();
+    data.ClipRect   = Rectangle.Intersect(e.ClipRectangle, renderRect);
+    data.Selection  = Selection;
+
+    rootBlock.Render(e.Graphics, ref renderRect, ref data, scrollBar == null ? 0 : scrollBar.Value);
 
     if(borderStyle != BorderStyle.None)
     {
@@ -903,6 +996,12 @@ class DocumentRenderer : Control
 
   #region Layout
   #region Layout classes
+  struct RenderData
+  {
+    public Rectangle ClipRect;
+    public TextSpan  Selection;
+  }
+  
   abstract class TextRegion
   {
     public Point Position
@@ -958,11 +1057,22 @@ class DocumentRenderer : Control
       set { TextSpan.Length = value; }
     }
 
-    public Rectangle GetAdjustedBounds(int scrollOffset)
+    public abstract TextRegion[] Children
     {
-      Rectangle rect = Bounds;
-      rect.Y -= scrollOffset;
-      return rect;
+      get;
+    }
+
+    public virtual int GetCharOffset(Graphics gdi, Point pt)
+    {
+      foreach(TextRegion region in Children)
+      {
+        if(region.Bounds.Contains(pt))
+        {
+          pt.Offset(-region.Left, -region.Top);
+          return region.GetCharOffset(gdi, pt);
+        }
+      }
+      return -1;
     }
 
     public Rectangle Bounds;
@@ -972,11 +1082,16 @@ class DocumentRenderer : Control
   abstract class BlockBase : TextRegion
   {
     public abstract Rectangle GetNodeBounds(DocumentNode node);
-    public abstract void Render(Graphics gdi, ref Rectangle area, ref Rectangle clip, int scrollOffset);
+    public abstract void Render(Graphics gdi, ref Rectangle area, ref RenderData clip, int scrollOffset);
   }
 
   sealed class Block : BlockBase
   {
+    public override TextRegion[] Children
+    {
+      get { return Blocks; }
+    }
+
     public override Rectangle GetNodeBounds(DocumentNode node)
     {
       foreach(BlockBase block in Blocks)
@@ -991,15 +1106,15 @@ class DocumentRenderer : Control
       return new Rectangle();
     }
 
-    public override void Render(Graphics gdi, ref Rectangle area, ref Rectangle clip, int scrollOffset)
+    public override void Render(Graphics gdi, ref Rectangle area, ref RenderData data, int scrollOffset)
     {
       foreach(BlockBase block in Blocks)
       {
         Rectangle childArea = new Rectangle(area.Left+block.Left, area.Top+block.Top-scrollOffset,
                                             block.Width, block.Height);
-        if(childArea.IntersectsWith(clip))
+        if(childArea.IntersectsWith(data.ClipRect))
         {
-          block.Render(gdi, ref childArea, ref clip, 0);
+          block.Render(gdi, ref childArea, ref data, 0);
         }
       }
     }
@@ -1010,6 +1125,11 @@ class DocumentRenderer : Control
   sealed class LineBlock : BlockBase
   {
     public LineBlock(Line[] lines) { Lines = lines; }
+
+    public override TextRegion[] Children
+    {
+      get { return Lines; }
+    }
 
     public override Rectangle GetNodeBounds(DocumentNode node)
     {
@@ -1026,15 +1146,15 @@ class DocumentRenderer : Control
       return rect;
     }
 
-    public override void Render(Graphics gdi, ref Rectangle area, ref Rectangle clip, int scrollOffset)
+    public override void Render(Graphics gdi, ref Rectangle area, ref RenderData data, int scrollOffset)
     {
       foreach(Line line in Lines)
       {
         Rectangle childArea = new Rectangle(area.Left+line.Left, area.Top+line.Top-scrollOffset,
                                             line.Width, line.Height);
-        if(childArea.IntersectsWith(clip))
+        if(childArea.IntersectsWith(data.ClipRect))
         {
-          line.Render(gdi, ref childArea);
+          line.Render(gdi, ref childArea, data.Selection);
         }
       }
     }
@@ -1045,6 +1165,11 @@ class DocumentRenderer : Control
   sealed class Line : TextRegion
   {
     public Line(Span[] spans) { Spans = spans; }
+
+    public override TextRegion[] Children
+    {
+      get { return Spans; }
+    }
 
     public Rectangle GetNodeBounds(DocumentNode node)
     {
@@ -1060,11 +1185,11 @@ class DocumentRenderer : Control
       return rect;
     }
 
-    public void Render(Graphics gdi, ref Rectangle area)
+    public void Render(Graphics gdi, ref Rectangle area, TextSpan selection)
     {
       foreach(Span span in Spans)
       {
-        span.Render(gdi, new Point(area.Left+span.Left, area.Top+span.Top));
+        span.Render(gdi, new Point(area.Left+span.Left, area.Top+span.Top), selection);
       }
     }
 
@@ -1075,11 +1200,82 @@ class DocumentRenderer : Control
   {
     public Span(DocumentNode node) { Node = node; }
 
-    public void Render(Graphics gdi, Point point)
+    public override TextRegion[] Children
     {
-      TextRenderer.DrawText(gdi, Node.Document.Text.Substring(TextStart, TextLength), Node.GetEffectiveFont(),
-                            new Rectangle(point, Size), Node.GetEffectiveForeColor(), Node.GetEffectiveBackColor(),
-                            TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+      get { return null; }
+    }
+
+    public override int GetCharOffset(Graphics gdi, Point pt)
+    {
+      const TextFormatFlags measureFlags = TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding |
+                                           TextFormatFlags.SingleLine;
+
+      Font font = Node.GetEffectiveFont();
+      int ellipWidth = TextRenderer.MeasureText(gdi, "...", font, new Size(int.MaxValue, Height), measureFlags).Width;
+
+      // make sure we construct a new string object so the MeasureText call doesn't modify an existing one.
+      // also, add four spaces at the end so the MeasureText function will have enough room to add the ellipsis
+      char[] chars = new char[TextLength+4];
+      Node.Document.Text.CopyTo(TextStart, chars, 0, TextLength);
+      for(int i=TextLength; i<chars.Length; i++) chars[i] = ' ';
+      string text = new string(chars);
+
+      TextRenderer.MeasureText(gdi, text, font, new Size(pt.X + ellipWidth, Height),
+                               measureFlags | TextFormatFlags.ModifyString | TextFormatFlags.EndEllipsis);
+
+      int nulPos = text.IndexOf('\0'); // if the string was modified, it will have "...\0" inserted
+      return nulPos == -1 ? TextEnd : TextStart + nulPos-4;
+    }
+
+    public void Render(Graphics gdi, Point point, TextSpan selection)
+    {
+      const TextFormatFlags drawFlags = TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding |
+                                        TextFormatFlags.SingleLine;
+      
+      Font font = Node.GetEffectiveFont();
+      Color fore, back;
+
+      if(!selection.Intersects(TextSpan)) // if the span is fully outside the selection use the node colors
+      {
+        fore = Node.GetEffectiveForeColor();
+        back = Node.GetEffectiveBackColor();
+      }
+      else if(selection.Contains(TextSpan)) // or if it's fully inside the selection, use the selection colors
+      {
+        fore = SystemColors.HighlightText;
+        back = SystemColors.Highlight;
+      }
+      else // otherwise if it's only partially in the selection, we'll need to draw up to three pieces
+      {
+        fore = Node.GetEffectiveForeColor();
+        back = Node.GetEffectiveBackColor();
+
+        if(TextStart < selection.Start) // if we need to draw a piece before the selection...
+        {
+          string text = Node.Document.Text.Substring(TextStart, selection.Start-TextStart);
+          Size   size = TextRenderer.MeasureText(gdi, text, font, Size, drawFlags);
+          TextRenderer.DrawText(gdi, text, font, point, fore, back, drawFlags);
+          point.X += size.Width;
+        }
+        // now draw the piece within the selection
+        {
+          int start = Math.Max(TextStart, selection.Start), end = Math.Min(TextEnd, selection.End);
+          string text = Node.Document.Text.Substring(start, end-start);
+          Size size = TextRenderer.MeasureText(gdi, text, font, Size, drawFlags);
+          TextRenderer.DrawText(gdi, text, font, point, SystemColors.HighlightText, SystemColors.Highlight, drawFlags);
+          point.X += size.Width;
+        }
+        if(TextEnd > selection.End) // if we need to draw a piece after the selection...
+        {
+          string text = Node.Document.Text.Substring(selection.End, TextEnd-selection.End);
+          TextRenderer.DrawText(gdi, text, font, point, fore, back, drawFlags);
+        }
+        return; // don't fall through to the default drawing code below
+      }
+
+      // draw with selected colors
+      TextRenderer.DrawText(gdi, Node.Document.Text.Substring(TextStart, TextLength),
+                            font, point, fore, back, drawFlags);
     }
 
     public DocumentNode Node;
@@ -1320,6 +1516,7 @@ class DocumentRenderer : Control
 
   void InvalidateLayout()
   {
+    DeselectAll();
     rootBlock = null;
     Invalidate();
   }
@@ -1337,13 +1534,26 @@ class DocumentRenderer : Control
   {
     base.OnMouseUp(e);
 
-    int xd = e.X-mouseDown.X, yd=e.Y-mouseDown.Y;
-    if(xd*xd+yd*yd < 4) // if the mouse moved too far since the button was pressed, don't count it as a click
+    if(mouseDown.HasValue)
     {
-      DocumentNode node = GetNodeFromPosition(mouseDown);
-      if(node != null) node.OnMouseClick(this, e);
-      // we don't handle tracking of individual buttons, so make sure additional button releases don't retrigger it
-      mouseDown = new Point(-1000, -1000); 
+      int xd = e.X-mouseDown.Value.X, yd=e.Y-mouseDown.Value.Y;
+      if(xd*xd+yd*yd < 4) // if the mouse moved too far since the button was pressed, don't count it as a click
+      {
+        DocumentNode node = GetNodeFromPosition(mouseDown.Value);
+        if(node != null) node.OnMouseClick(this, e);
+        // we don't handle tracking of individual buttons, so make sure additional button releases don't retrigger it
+        mouseDown = null;
+      }
+
+      if(dragSelectionStart != -1)
+      {
+        Capture = false; // make sure we don't keep updating the drag selection
+        dragSelectionStart = -1;
+      }
+      else if(e.Button == MouseButtons.Left) // if the user wasn't dragging, deselect on left-click
+      {
+        DeselectAll();
+      }
     }
   }
   protected override void OnDoubleClick(EventArgs e)
@@ -1370,10 +1580,38 @@ class DocumentRenderer : Control
   {
     base.OnMouseMove(e);
 
-    // only fire enter events when no button is pressed, because, for instance, when the user is doing a drag select,
-    // the selection won't actually be updated until the user releases the mouse button. in that case, if we fired the
-    // an event, a region might update the selection, ruining the user's attempt to drag-select
-    if(e.Button != MouseButtons.None) return;
+    // if the left button is depressed during the move, consider updating the drag selection
+    if(allowSelection && mouseDown.HasValue && e.Button == MouseButtons.Left)
+    {
+      if(dragSelectionStart == -1)
+      {
+        int xd = e.X-mouseDown.Value.X, yd=e.Y-mouseDown.Value.Y;
+        if(xd*xd+yd*yd >= 9) // if the mouse moved too far enough to consider it as a drag...
+        {
+          dragSelectionStart = GetOffsetFromPosition(mouseDown.Value);
+          if(dragSelectionStart == -1) // if the mouse wasn't over a character, cancel the drag and deselect all
+          {
+            DeselectAll();
+            mouseDown = null;
+          }
+          else // otherwise, capture mouse input so we can be sure to receive the mouse up event
+          {
+            Capture = true;
+          }
+        }
+      }
+
+      if(dragSelectionStart != -1)
+      {
+        int dragEnd = GetOffsetFromPosition(e.Location);
+        if(dragEnd != -1)
+        {
+          int dragStart = dragSelectionStart;
+          if(dragEnd < dragStart) Utilities.Swap(ref dragStart, ref dragEnd);
+          Select(dragStart, dragEnd-dragStart);
+        }
+      }
+    }
 
     DocumentNode node = GetNodeFromPosition(e.Location);
 
@@ -1425,11 +1663,12 @@ class DocumentRenderer : Control
     base.OnMouseWheel(e);
     if(scrollBar != null)
     {
-      int newValue = scrollBar.Value + -e.Delta*3*scrollBar.SmallChange/120; // scroll ~3 lines per click
-      if(newValue >= scrollBar.Minimum && newValue <= scrollBar.Maximum-scrollBar.LargeChange+1)
-      {
-        scrollBar.Value = newValue;
-      }
+      const int DetentSize = 120;
+      int newValue  = scrollBar.Value + -e.Delta*3*scrollBar.SmallChange/DetentSize; // scroll ~3 lines per click
+      int scrollMax = scrollBar.Maximum-scrollBar.LargeChange+1; // the maximum scrollbar value that can be reached through user interaction
+      if(newValue < scrollBar.Minimum) newValue = scrollBar.Minimum;
+      else if(newValue > scrollMax) newValue = scrollMax;
+      scrollBar.Value = newValue;
     }
   }
   #endregion
@@ -1438,10 +1677,26 @@ class DocumentRenderer : Control
   {
     base.OnKeyDown(e);
 
-    if(!e.Handled && e.KeyCode == Keys.A && e.Modifiers == Keys.Control) // ctrl-A means "Select All"
+    if(!e.Handled && e.Modifiers == Keys.Control)
     {
-      SelectAll();
-      e.Handled = true;
+      if(e.KeyCode == Keys.A) // ctrl-A means "Select All"
+      {
+        SelectAll();
+        e.Handled = true;
+      }
+      else if(e.KeyCode == Keys.C || e.KeyCode == Keys.X || e.KeyCode == Keys.Insert) // copy selection to clipboard
+      {
+        Copy();
+        e.Handled = true;
+      }
+    }
+    else if(!e.Handled && e.Modifiers == Keys.Shift)
+    {
+      if(e.KeyCode == Keys.Delete) // shift-delete also copies selection to clipboard
+      {
+        Copy();
+        e.Handled = true;
+      }
     }
   }
 
@@ -1484,34 +1739,21 @@ class DocumentRenderer : Control
 
   TextRegion GetNodeFromPosition(Point pt, TextRegion parent)
   {
-    TextRegion[] children;
-    if(parent is Block)
+    TextRegion[] children = parent.Children;
+    if(children != null)
     {
-      children = ((Block)parent).Blocks;
-    }
-    else if(parent is LineBlock)
-    {
-      children = ((LineBlock)parent).Lines;
-    }
-    else if(parent is Line)
-    {
-      children = ((Line)parent).Spans;
-    }
-    else return parent; // it's a span
-
-    int borderWidth = BorderWidth;
-    foreach(TextRegion child in children)
-    {
-      Rectangle bounds = scrollBar == null ? child.Bounds : child.GetAdjustedBounds(scrollBar.Value);
-      if(bounds.Contains(pt))
+      int borderWidth = BorderWidth;
+      foreach(TextRegion child in children)
       {
-        pt = new Point(pt.X-child.Left, pt.Y-child.Top);
-        TextRegion lowest = GetNodeFromPosition(pt, child);
-        if(lowest != null) return lowest;
-        break;
+        if(child.Bounds.Contains(pt))
+        {
+          pt = new Point(pt.X-child.Left, pt.Y-child.Top);
+          TextRegion lowest = GetNodeFromPosition(pt, child);
+          if(lowest != null) return lowest;
+          break;
+        }
       }
     }
-
     return parent;
   }
 
@@ -1544,12 +1786,14 @@ class DocumentRenderer : Control
   }
 
   BorderStyle borderStyle = BorderStyle.Fixed3D;
-  VScrollBar scrollBar = new VScrollBar();
+  VScrollBar scrollBar;
   readonly Document document = new Document();
   BlockBase rootBlock;
   DocumentNode inside;
-  Point mouseDown;
-  int previousWidth, selStart, selLength;
+  Point? mouseDown;
+  TextSpan selection;
+  int previousWidth, dragSelectionStart = -1;
+  bool allowSelection = true;
 
   static List<DocumentNode> GetAncestorList(DocumentNode node)
   {

@@ -272,7 +272,7 @@ static class UI
     protected internal override void OnMouseClick(object sender, MouseEventArgs e)
     {
       base.OnMouseClick(sender, e);
-      tab.LoadEntryDetails(dictionary, entryID, headword);
+      if(e.Button == MouseButtons.Left) tab.LoadEntryDetails(dictionary, entryID, headword);
     }
 
     protected internal override void OnMouseEnter(object sender, MouseEventArgs e)
