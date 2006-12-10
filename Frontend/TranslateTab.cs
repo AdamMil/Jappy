@@ -19,6 +19,9 @@ partial class TranslateTab : TabBase
   {
     matchedStyle = new Style();
     matchedStyle.ForeColor = Color.Blue;
+
+    inflectedStyle = new Style();
+    inflectedStyle.ForeColor = Color.Green;
   }
 
   public void PerformTranslation(string text)
@@ -41,7 +44,8 @@ partial class TranslateTab : TabBase
     foreach(TranslatedWord word in words)
     {
       if(lastEnd < word.Position) root.Children.Add(new TextNode(text.Substring(lastEnd, word.Position-lastEnd)));
-      root.Children.Add(new TextNode(text.Substring(word.Position, word.Length)+" ", matchedStyle));
+      root.Children.Add(new TextNode(text.Substring(word.Position, word.Length)+" ",
+                                     word.PossiblyInflected ? inflectedStyle : matchedStyle));
       lastEnd = word.Position + word.Length;
       oddWord = !oddWord;
     }
@@ -103,8 +107,20 @@ partial class TranslateTab : TabBase
   {
     base.control_RestoreStatusText(sender, e);
   }
-  
-  static readonly Style matchedStyle;
+
+  void output_MouseClick(object sender, MouseEventArgs e)
+  {
+    if(e.Button == MouseButtons.Right && output.SelectionLength != 0) // if the user right-clicks on selected text
+    {
+      ContextMenuStrip menu = new ContextMenuStrip();
+      menu.Items.Add("&Copy", null, delegate(object s, EventArgs a) { output.Copy(); });
+      menu.Items.Add("&Lookup", null, delegate(object s, EventArgs a)
+                       { Form.GetDictionarySearchTab().PerformDictionarySearch(output.SelectedText); });
+      menu.Show(output, e.Location);
+    }
+  }
+
+  static readonly Style matchedStyle, inflectedStyle;
 }
 
 } // namespace Jappy

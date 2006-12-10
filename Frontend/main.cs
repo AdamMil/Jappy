@@ -16,6 +16,13 @@ static class Utilities
       disposable = null;
     }
   }
+  
+  public static void Swap<T>(ref T a, ref T b)
+  {
+    T temp = a;
+    a = b;
+    b = temp;
+  }
 }
 
 static class App
@@ -93,6 +100,7 @@ static class App
 
   public static readonly Random Random = new Random();
 
+  [STAThread]
   static void Main()
   {
 //ExampleSentences examples = new ExampleSentences();
