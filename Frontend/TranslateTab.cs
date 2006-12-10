@@ -113,6 +113,20 @@ partial class TranslateTab : TabBase
     doc_MouseClick(sender, e);
   }
 
+  void output_MouseEnter(object sender, EventArgs e)
+  {
+    if(output.Document.Root.Children.Count == 0) // if there are no results
+    {
+      Form.SetStatusText(output,
+                         "Type something into the search box above and press Ctrl-Enter to get search results.");
+    }
+    else
+    {
+      Form.SetStatusText(output,
+        "Mouse over headwords for kanji information. Right click headwords or selected text to perform actions.");
+    }
+  }
+
   static readonly Style matchedStyle, inflectedStyle;
 }
 

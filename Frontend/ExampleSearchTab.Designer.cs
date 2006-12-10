@@ -45,7 +45,9 @@ namespace Jappy
       this.output.Size = new System.Drawing.Size(200, 140);
       this.output.TabIndex = 6;
       this.output.TabStop = false;
+      this.output.MouseLeave += new System.EventHandler(this.common_MouseLeave);
       this.output.MouseClick += new System.Windows.Forms.MouseEventHandler(this.output_MouseClick);
+      this.output.MouseEnter += new System.EventHandler(this.output_MouseEnter);
       // 
       // input
       // 
