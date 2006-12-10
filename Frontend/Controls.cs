@@ -199,12 +199,14 @@ static class UI
 
         if(meanings.Length != 1)
         {
+          if(meaningNumber != 1) sb.Append("; ");
           sb.Append("(" + meaningNumber++ + ") ");
         }
 
-        foreach(Gloss gloss in meaning.Glosses)
+        for(int glossIndex=0; glossIndex<meaning.Glosses.Length; glossIndex++)
         {
-          sb.Append(gloss.Text).Append("; ");
+          sb.Append(meaning.Glosses[glossIndex].Text);
+          if(glossIndex != meaning.Glosses.Length-1) sb.Append("; ");
         }
       }
       return sb.ToString();

@@ -54,29 +54,29 @@ namespace Jappy
       // 
       // lblPhrase
       // 
-      lblPhrase.Location = new System.Drawing.Point(2, 10);
+      lblPhrase.Location = new System.Drawing.Point(2, 6);
       lblPhrase.Name = "lblPhrase";
-      lblPhrase.Size = new System.Drawing.Size(72, 13);
+      lblPhrase.Size = new System.Drawing.Size(72, 20);
       lblPhrase.TabIndex = 0;
-      lblPhrase.Text = "Phrase:";
+      lblPhrase.Text = "&Phrase:";
       lblPhrase.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // lblReadings
       // 
-      lblReadings.Location = new System.Drawing.Point(2, 37);
+      lblReadings.Location = new System.Drawing.Point(2, 34);
       lblReadings.Name = "lblReadings";
-      lblReadings.Size = new System.Drawing.Size(72, 14);
+      lblReadings.Size = new System.Drawing.Size(72, 20);
       lblReadings.TabIndex = 2;
-      lblReadings.Text = "Readings:";
+      lblReadings.Text = "&Readings:";
       lblReadings.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // lblMeanings
       // 
-      lblMeanings.Location = new System.Drawing.Point(2, 65);
+      lblMeanings.Location = new System.Drawing.Point(2, 62);
       lblMeanings.Name = "lblMeanings";
-      lblMeanings.Size = new System.Drawing.Size(72, 14);
+      lblMeanings.Size = new System.Drawing.Size(72, 20);
       lblMeanings.TabIndex = 4;
-      lblMeanings.Text = "Meanings:";
+      lblMeanings.Text = "&Meanings:";
       lblMeanings.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // lblJpExample
@@ -85,7 +85,7 @@ namespace Jappy
       lblJpExample.Name = "lblJpExample";
       lblJpExample.Size = new System.Drawing.Size(129, 14);
       lblJpExample.TabIndex = 6;
-      lblJpExample.Text = "Japanese example:";
+      lblJpExample.Text = "&Japanese example:";
       lblJpExample.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
       // 
       // lblEnExample
@@ -94,7 +94,7 @@ namespace Jappy
       lblEnExample.Name = "lblEnExample";
       lblEnExample.Size = new System.Drawing.Size(129, 14);
       lblEnExample.TabIndex = 8;
-      lblEnExample.Text = "English example:";
+      lblEnExample.Text = "&English example:";
       lblEnExample.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
       // 
       // btnSave
@@ -122,8 +122,8 @@ namespace Jappy
       // 
       // btnReset
       // 
-      btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-      btnReset.Location = new System.Drawing.Point(306, 208);
+      btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      btnReset.Location = new System.Drawing.Point(427, 208);
       btnReset.Name = "btnReset";
       btnReset.Size = new System.Drawing.Size(75, 23);
       btnReset.TabIndex = 14;
@@ -137,7 +137,7 @@ namespace Jappy
             | System.Windows.Forms.AnchorStyles.Right)));
       this.txtPhrase.Location = new System.Drawing.Point(73, 5);
       this.txtPhrase.Name = "txtPhrase";
-      this.txtPhrase.Size = new System.Drawing.Size(308, 22);
+      this.txtPhrase.Size = new System.Drawing.Size(429, 22);
       this.txtPhrase.TabIndex = 1;
       // 
       // txtReadings
@@ -146,7 +146,7 @@ namespace Jappy
             | System.Windows.Forms.AnchorStyles.Right)));
       this.txtReadings.Location = new System.Drawing.Point(73, 33);
       this.txtReadings.Name = "txtReadings";
-      this.txtReadings.Size = new System.Drawing.Size(308, 22);
+      this.txtReadings.Size = new System.Drawing.Size(429, 22);
       this.txtReadings.TabIndex = 3;
       // 
       // txtMeanings
@@ -155,7 +155,7 @@ namespace Jappy
             | System.Windows.Forms.AnchorStyles.Right)));
       this.txtMeanings.Location = new System.Drawing.Point(73, 61);
       this.txtMeanings.Name = "txtMeanings";
-      this.txtMeanings.Size = new System.Drawing.Size(308, 22);
+      this.txtMeanings.Size = new System.Drawing.Size(429, 22);
       this.txtMeanings.TabIndex = 5;
       // 
       // txtJpExample
@@ -165,7 +165,7 @@ namespace Jappy
       this.txtJpExample.Location = new System.Drawing.Point(5, 114);
       this.txtJpExample.Multiline = true;
       this.txtJpExample.Name = "txtJpExample";
-      this.txtJpExample.Size = new System.Drawing.Size(376, 34);
+      this.txtJpExample.Size = new System.Drawing.Size(497, 34);
       this.txtJpExample.TabIndex = 7;
       // 
       // txtEnExample
@@ -175,12 +175,13 @@ namespace Jappy
       this.txtEnExample.Location = new System.Drawing.Point(5, 168);
       this.txtEnExample.Multiline = true;
       this.txtEnExample.Name = "txtEnExample";
-      this.txtEnExample.Size = new System.Drawing.Size(376, 34);
+      this.txtEnExample.Size = new System.Drawing.Size(497, 34);
       this.txtEnExample.TabIndex = 10;
       // 
       // lblSuccess
       // 
-      this.lblSuccess.Location = new System.Drawing.Point(169, 213);
+      this.lblSuccess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this.lblSuccess.Location = new System.Drawing.Point(290, 213);
       this.lblSuccess.Name = "lblSuccess";
       this.lblSuccess.Size = new System.Drawing.Size(131, 13);
       this.lblSuccess.TabIndex = 13;
@@ -192,7 +193,7 @@ namespace Jappy
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 14F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = btnCancel;
-      this.ClientSize = new System.Drawing.Size(385, 238);
+      this.ClientSize = new System.Drawing.Size(506, 238);
       this.Controls.Add(btnReset);
       this.Controls.Add(this.lblSuccess);
       this.Controls.Add(btnCancel);
@@ -211,6 +212,7 @@ namespace Jappy
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
       this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.MaximizeBox = false;
+      this.MaximumSize = new System.Drawing.Size(5000, 263);
       this.MinimizeBox = false;
       this.Name = "StudyListEntryDialog";
       this.ShowInTaskbar = false;
