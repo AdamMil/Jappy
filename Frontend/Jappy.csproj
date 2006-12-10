@@ -36,6 +36,7 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedDictionarySearchDialog.cs">
@@ -91,6 +92,14 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="StudyListEntryDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>StudyListEntryDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StudyListNameDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>StudyListNameDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StudyTab.resx">
       <SubType>Designer</SubType>
       <DependentUpon>StudyTab.cs</DependentUpon>
@@ -108,10 +117,25 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Properties\StudyList.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="StudyListEntryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StudyListEntryDialog.Designer.cs">
+      <DependentUpon>StudyListEntryDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StudyListNameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StudyListNameDialog.Designer.cs">
+      <DependentUpon>StudyListNameDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="StudyTab.cs">
       <SubType>UserControl</SubType>

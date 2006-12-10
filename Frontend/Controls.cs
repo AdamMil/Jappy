@@ -60,9 +60,23 @@ class TabBase : UserControl
     get { return (TabPage)Parent; }
   }
 
+  protected internal virtual void OnActivate() { }
+  protected internal virtual void OnDeactivate() { }
+
   protected void SwitchToTab()
   {
     Form.SwitchToTab(TabPage);
+  }
+
+  protected ContextMenuStrip CreateSelectedTextMenu(DocumentRenderer control)
+  {
+    ContextMenuStrip menu = new ContextMenuStrip();
+    menu.Items.Add("&Copy", null, delegate(object s, EventArgs a) { control.Copy(); });
+    menu.Items.Add("&Lookup (exact)", null, delegate(object s, EventArgs a)
+                     { Form.GetDictionarySearchTab().PerformDictionarySearch(control.SelectedText); });
+    menu.Items.Add("Lookup (starts &with)", null, delegate(object s, EventArgs a)
+                     { Form.GetDictionarySearchTab().PerformDictionarySearch(control.SelectedText+"*"); });
+    return menu;
   }
 
   protected void textBox_CommonKeyDown(object sender, KeyEventArgs e)
@@ -75,7 +89,16 @@ class TabBase : UserControl
       e.Handled = true;
     }
   }
-  
+
+  protected void doc_MouseClick(object sender, MouseEventArgs e)
+  {
+    DocumentRenderer doc = (DocumentRenderer)sender;
+    if(e.Button == MouseButtons.Right && doc.SelectionLength != 0) // if the user right-clicks on selected text
+    {
+      CreateSelectedTextMenu(doc).Show(doc, e.Location);
+    }
+  }
+
   protected void control_RestoreStatusText(object sender, EventArgs e)
   {
     Form.RestoreStatusText((Control)sender);
@@ -95,9 +118,6 @@ static class UI
 
     BoldStyle = new Style();
     BoldStyle.FontStyle = FontStyle.Bold;
-    
-    headwordStyle = new Style();
-    headwordStyle.ForeColor = Color.Green;
   }
 
   public static string GetKanjiSummary(string text)
@@ -152,8 +172,47 @@ static class UI
     }
   }
 
+  public static string GetMeaningText(Meaning[] meanings, bool addFlagText)
+  {
+    if(meanings == null)
+    {
+      return "<unknown meaning>";
+    }
+    else
+    {
+      StringBuilder sb = new StringBuilder();
+      int meaningNumber = 1;
+      foreach(Meaning meaning in meanings)
+      {
+        if(addFlagText && meaning.Flags != null)
+        {
+          sb.Append('(');
+          bool sep = false;
+          foreach(SenseFlag flag in meaning.Flags)
+          {
+            if(sep) sb.Append(';');
+            else sep = true;
+            sb.Append(flag.ToString());
+          }
+          sb.Append(") ");
+        }
+
+        if(meanings.Length != 1)
+        {
+          sb.Append("(" + meaningNumber++ + ") ");
+        }
+
+        foreach(Gloss gloss in meaning.Glosses)
+        {
+          sb.Append(gloss.Text).Append("; ");
+        }
+      }
+      return sb.ToString();
+    }
+  }
+
   public static void RenderDictionaryEntry(WordDictionary dictionary, Entry entry, int headwordIndex,
-                                           DictionarySearchTab tab, DocumentNode parent, bool makeHeadwordsClickable)
+                                           DictionarySearchTab tab, DocumentNode parent)
   {
     bool sep;
 
@@ -166,15 +225,7 @@ static class UI
       if(sep) parent.Children.Add(new TextNode(", "));
       else sep = true;
 
-      string headword = entry.Headwords[i].Text;
-      if(makeHeadwordsClickable)
-      {
-        parent.Children.Add(new HeadwordNode(tab, dictionary, entry.ID, i, headword));
-      }
-      else
-      {
-        parent.Children.Add(new TextNode(headword, UI.JpStyle, headwordStyle));
-      }
+      parent.Children.Add(new HeadwordNode(tab, dictionary, entry.ID, i, entry.Headwords[i].Text));
     }
 
     // add readings
@@ -204,44 +255,7 @@ static class UI
     }
 
     // ADD MEANINGS
-    if(entry.Meanings == null)
-    {
-      sb.Append("<unknown meaning>");
-    }
-    else
-    {
-      int meaningNumber = 1;
-      foreach(Meaning meaning in entry.Meanings)
-      {
-        if(headwordIndex != -1 && meaning.AppliesToHeadword != -1 && meaning.AppliesToHeadword != headwordIndex)
-        {
-          continue;
-        }
-
-        if(meaning.Flags != null)
-        {
-          sb.Append('(');
-          sep = false;
-          foreach(SenseFlag flag in meaning.Flags)
-          {
-            if(sep) sb.Append(';');
-            else sep = true;
-            sb.Append(flag.ToString());
-          }
-          sb.Append(") ");
-        }
-
-        if(entry.Meanings.Length != 1)
-        {
-          sb.Append("(" + meaningNumber++ + ") ");
-        }
-
-        foreach(Gloss gloss in meaning.Glosses)
-        {
-          sb.Append(gloss.Text).Append("; ");
-        }
-      }
-    }
+    sb.Append(GetMeaningText(entry.Meanings, true));
 
     sb.Append('\n');
     parent.Children.Add(new TextNode(sb.ToString()));
@@ -263,16 +277,29 @@ static class UI
     public HeadwordNode(DictionarySearchTab tab, WordDictionary dictionary, uint entryID, int headword, string text)
       : base(text, UI.JpStyle)
     {
-      this.tab        = tab;
-      this.dictionary = dictionary;
-      this.entryID    = entryID;
-      this.headword   = headword;
+      this.tab           = tab;
+      this.dictionary    = dictionary;
+      this.entryID       = entryID;
+      this.headwordIndex = headword;
     }
 
     protected internal override void OnMouseClick(object sender, MouseEventArgs e)
     {
       base.OnMouseClick(sender, e);
-      if(e.Button == MouseButtons.Left) tab.LoadEntryDetails(dictionary, entryID, headword);
+      if(e.Button == MouseButtons.Left)
+      {
+        LoadDetails();
+      }
+      else if(e.Button == MouseButtons.Right)
+      {
+        ContextMenuStrip menu = new ContextMenuStrip();
+        menu.Items.Add("Add to &study list", null, delegate(object o, EventArgs a) { AddToStudyList(); });
+        menu.Items.Add("&Copy", null, delegate(object o, EventArgs a) { Clipboard.SetText(Text); });
+        menu.Items.Add("&Load details", null, delegate(object o, EventArgs a) { LoadDetails(); });
+        menu.Items.Add("Lookup (starts &with)", null, delegate(object o, EventArgs a) { SearchStartsWith(); });
+        menu.Items.Add("Search &examples", null, delegate(object o, EventArgs a) { SearchExamples(); });
+        menu.Show((Control)sender, e.Location);
+      }
     }
 
     protected internal override void OnMouseEnter(object sender, MouseEventArgs e)
@@ -287,13 +314,73 @@ static class UI
       App.MainForm.RestoreStatusText((Control)sender);
     }
 
+    void AddToStudyList()
+    {
+      StudyTab tab = App.MainForm.GetStudyTab();
+
+      StudyList.Item item = new StudyList.Item();
+
+      Entry entry = dictionary.GetEntryById(entryID);
+      
+      foreach(Word headword in entry.Headwords)
+      {
+        if(item.Phrase != null) item.Phrase += ", ";
+        item.Phrase += headword.Text;
+      }
+      
+      if(entry.Readings != null)
+      {
+        foreach(Word reading in entry.Readings)
+        {
+          if(item.Readings != null) item.Readings += ", ";
+          item.Readings += reading.Text;
+        }
+      }
+      
+      item.Meanings = UI.GetMeaningText(entry.Meanings, false);
+      
+      StudyListEntryDialog dialog = new StudyListEntryDialog();
+      dialog.LoadItem(item);
+      
+      if(dialog.ShowDialog() == DialogResult.OK)
+      {
+        if(!tab.IsListLoaded)
+        {
+          DialogResult result = MessageBox.Show("No study list is loaded. Do you want to load an existing one?",
+                                              "Load a list?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+          
+          if(result == DialogResult.Yes && !tab.LoadList() || result == DialogResult.No && !tab.CreateNewList() ||
+             result == DialogResult.Cancel)
+          {
+            return;
+          }
+        }
+
+        dialog.SaveItem(item);
+        tab.AddEntry(item);
+      }
+    }
+
+    void LoadDetails()
+    {
+      tab.LoadEntryDetails(dictionary, entryID, headwordIndex);
+    }
+    
+    void SearchExamples()
+    {
+      App.MainForm.GetExampleSearchTab().PerformExampleSearch(Text);
+    }
+    
+    void SearchStartsWith()
+    {
+      App.MainForm.GetDictionarySearchTab().PerformDictionarySearch(Text+"*");
+    }
+
     readonly DictionarySearchTab tab;
     readonly WordDictionary dictionary;
     readonly uint entryID;
-    readonly int headword;
+    readonly int headwordIndex;
   }
-  
-  static readonly Style headwordStyle;
 }
 
 } // namespace Jappy

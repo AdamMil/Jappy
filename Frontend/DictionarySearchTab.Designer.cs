@@ -28,7 +28,7 @@ namespace Jappy
     /// </summary>
     private void InitializeComponent()
     {
-      System.Windows.Forms.SplitContainer dictSplitter;
+      System.Windows.Forms.SplitContainer splitter;
       Jappy.LinkLabel lblAdvanced;
       System.Windows.Forms.Label lblDictionary;
       this.cmbDictionary = new Jappy.DictionaryDropdown();
@@ -36,41 +36,41 @@ namespace Jappy
       this.input = new System.Windows.Forms.TextBox();
       this.resultList = new Jappy.DocumentRenderer();
       this.details = new Jappy.DocumentRenderer();
-      dictSplitter = new System.Windows.Forms.SplitContainer();
+      splitter = new System.Windows.Forms.SplitContainer();
       lblAdvanced = new Jappy.LinkLabel();
       lblDictionary = new System.Windows.Forms.Label();
-      dictSplitter.Panel1.SuspendLayout();
-      dictSplitter.Panel2.SuspendLayout();
-      dictSplitter.SuspendLayout();
+      splitter.Panel1.SuspendLayout();
+      splitter.Panel2.SuspendLayout();
+      splitter.SuspendLayout();
       this.SuspendLayout();
       // 
-      // dictSplitter
+      // splitter
       // 
-      dictSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
-      dictSplitter.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-      dictSplitter.Location = new System.Drawing.Point(0, 0);
-      dictSplitter.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      dictSplitter.Name = "dictSplitter";
-      dictSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
+      splitter.Dock = System.Windows.Forms.DockStyle.Fill;
+      splitter.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+      splitter.Location = new System.Drawing.Point(0, 0);
+      splitter.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      splitter.Name = "splitter";
+      splitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
-      // dictSplitter.Panel1
+      // splitter.Panel1
       // 
-      dictSplitter.Panel1.Controls.Add(lblAdvanced);
-      dictSplitter.Panel1.Controls.Add(lblDictionary);
-      dictSplitter.Panel1.Controls.Add(this.cmbDictionary);
-      dictSplitter.Panel1.Controls.Add(this.chkCommon);
-      dictSplitter.Panel1.Controls.Add(this.input);
-      dictSplitter.Panel1.Controls.Add(this.resultList);
-      dictSplitter.Panel1MinSize = 100;
+      splitter.Panel1.Controls.Add(lblAdvanced);
+      splitter.Panel1.Controls.Add(lblDictionary);
+      splitter.Panel1.Controls.Add(this.cmbDictionary);
+      splitter.Panel1.Controls.Add(this.chkCommon);
+      splitter.Panel1.Controls.Add(this.input);
+      splitter.Panel1.Controls.Add(this.resultList);
+      splitter.Panel1MinSize = 100;
       // 
-      // dictSplitter.Panel2
+      // splitter.Panel2
       // 
-      dictSplitter.Panel2.Controls.Add(this.details);
-      dictSplitter.Panel2MinSize = 100;
-      dictSplitter.Size = new System.Drawing.Size(564, 430);
-      dictSplitter.SplitterDistance = 325;
-      dictSplitter.TabIndex = 7;
-      dictSplitter.TabStop = false;
+      splitter.Panel2.Controls.Add(this.details);
+      splitter.Panel2MinSize = 100;
+      splitter.Size = new System.Drawing.Size(564, 430);
+      splitter.SplitterDistance = 229;
+      splitter.TabIndex = 7;
+      splitter.TabStop = false;
       // 
       // lblAdvanced
       // 
@@ -136,6 +136,7 @@ namespace Jappy
       // 
       // resultList
       // 
+      this.resultList.AllowSelection = true;
       this.resultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -144,14 +145,18 @@ namespace Jappy
       this.resultList.Location = new System.Drawing.Point(0, 52);
       this.resultList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.resultList.Name = "resultList";
-      this.resultList.Size = new System.Drawing.Size(562, 274);
+      this.resultList.SelectionLength = 0;
+      this.resultList.SelectionStart = 0;
+      this.resultList.Size = new System.Drawing.Size(562, 178);
       this.resultList.TabIndex = 2;
       this.resultList.TabStop = false;
       this.resultList.MouseLeave += new System.EventHandler(this.common_MouseLeave);
+      this.resultList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.output_MouseClick);
       this.resultList.MouseEnter += new System.EventHandler(this.resultList_MouseEnter);
       // 
       // details
       // 
+      this.details.AllowSelection = true;
       this.details.BackColor = System.Drawing.SystemColors.Window;
       this.details.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
       this.details.Cursor = System.Windows.Forms.Cursors.IBeam;
@@ -159,23 +164,26 @@ namespace Jappy
       this.details.Location = new System.Drawing.Point(0, 0);
       this.details.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.details.Name = "details";
-      this.details.Size = new System.Drawing.Size(564, 101);
+      this.details.SelectionLength = 0;
+      this.details.SelectionStart = 0;
+      this.details.Size = new System.Drawing.Size(564, 197);
       this.details.TabIndex = 3;
       this.details.TabStop = false;
+      this.details.MouseClick += new System.Windows.Forms.MouseEventHandler(this.output_MouseClick);
       // 
       // DictionarySearchTab
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 14F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.Controls.Add(dictSplitter);
+      this.Controls.Add(splitter);
       this.Font = new System.Drawing.Font("Verdana", 9F);
       this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.Name = "DictionarySearchTab";
       this.Size = new System.Drawing.Size(564, 430);
-      dictSplitter.Panel1.ResumeLayout(false);
-      dictSplitter.Panel1.PerformLayout();
-      dictSplitter.Panel2.ResumeLayout(false);
-      dictSplitter.ResumeLayout(false);
+      splitter.Panel1.ResumeLayout(false);
+      splitter.Panel1.PerformLayout();
+      splitter.Panel2.ResumeLayout(false);
+      splitter.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }

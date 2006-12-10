@@ -80,7 +80,7 @@ partial class TranslateTab : TabBase
           root.Children.Add(new TextNode(sb.ToString()));
         }
 
-        UI.RenderDictionaryEntry(word.Dictionary, word.Dictionary.GetEntryById(entry.EntryId), -1, tab, root, true);
+        UI.RenderDictionaryEntry(word.Dictionary, word.Dictionary.GetEntryById(entry.EntryId), -1, tab, root);
       }
     }
   }
@@ -110,14 +110,7 @@ partial class TranslateTab : TabBase
 
   void output_MouseClick(object sender, MouseEventArgs e)
   {
-    if(e.Button == MouseButtons.Right && output.SelectionLength != 0) // if the user right-clicks on selected text
-    {
-      ContextMenuStrip menu = new ContextMenuStrip();
-      menu.Items.Add("&Copy", null, delegate(object s, EventArgs a) { output.Copy(); });
-      menu.Items.Add("&Lookup", null, delegate(object s, EventArgs a)
-                       { Form.GetDictionarySearchTab().PerformDictionarySearch(output.SelectedText); });
-      menu.Show(output, e.Location);
-    }
+    doc_MouseClick(sender, e);
   }
 
   static readonly Style matchedStyle, inflectedStyle;
