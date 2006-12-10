@@ -34,13 +34,18 @@ namespace Jappy
       // 
       // output
       // 
+      this.output.AllowSelection = true;
+      this.output.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
       this.output.Dock = System.Windows.Forms.DockStyle.Fill;
       this.output.Location = new System.Drawing.Point(0, 22);
       this.output.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.output.Name = "output";
+      this.output.SelectionLength = 0;
+      this.output.SelectionStart = 0;
       this.output.Size = new System.Drawing.Size(200, 140);
       this.output.TabIndex = 6;
       this.output.TabStop = false;
+      this.output.MouseClick += new System.Windows.Forms.MouseEventHandler(this.output_MouseClick);
       // 
       // input
       // 

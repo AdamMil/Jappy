@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="StudyList" targetNamespace="http://www.adammil.net/Jappy/StudyList" xmlns="http://www.adammil.net/Jappy/StudyList" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="item">
+    <xs:sequence>
+      <xs:element name="phrase" type="xs:string" />
+      <xs:element name="readings" type="xs:string" minOccurs="0" />
+      <xs:element name="meanings" type="xs:string" />
+      <xs:element name="example" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="source" type="xs:string" />
+            <xs:element name="destination" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="shown" type="xs:int" />
+    <xs:attribute name="success" type="xs:int" />
+  </xs:complexType>
+
+  <xs:complexType name="items">
+    <xs:sequence>
+      <xs:element name="item" type="items" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="studyList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="items" type="items" />
+      </xs:sequence>
+
+      <xs:attribute name="version" use="required" type="xs:int" />
+      <xs:attribute name="name" use="required" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

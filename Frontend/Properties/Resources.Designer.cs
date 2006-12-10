@@ -73,5 +73,22 @@ namespace Jappy.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;xs:schema id=&quot;StudyList&quot; targetNamespace=&quot;http://www.adammil.net/Jappy/StudyList&quot; xmlns=&quot;http://www.adammil.net/Jappy/StudyList&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
+        ///  &lt;xs:complexType name=&quot;item&quot;&gt;
+        ///    &lt;xs:sequence&gt;
+        ///      &lt;xs:element name=&quot;phrase&quot; type=&quot;xs:string&quot; /&gt;
+        ///      &lt;xs:element name=&quot;readings&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;
+        ///      &lt;xs:element name=&quot;meanings&quot; type=&quot;xs:string&quot; /&gt;
+        ///      &lt;xs:element name=&quot;example&quot; minOccurs=&quot;0&quot;&gt;
+        ///        &lt;xs:complex [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string StudyListSchema {
+            get {
+                return ResourceManager.GetString("StudyListSchema", resourceCulture);
+            }
+        }
     }
 }

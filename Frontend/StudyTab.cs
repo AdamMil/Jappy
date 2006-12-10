@@ -1,36 +1,770 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace Jappy
 {
 
+#region StudyTab
 partial class StudyTab : TabBase
 {
   public StudyTab()
   {
     InitializeComponent();
+    EnableStudyMenu(false);
     
-    DocumentRenderer doc = new DocumentRenderer();
-    doc.Dock = DockStyle.Fill;
-    Controls.Add(doc);
+    list = new StudyList();
     
-    doc.Document.Root.Children.Add(new TextNode("This is a long line of text. I expect it to break somewhere, but who knows where that will happen?"));
+    foreach(char c in App.CharDict.RetrieveAll())
+    {
+      Backend.Kanji kanji;
+      App.CharDict.TryGetKanjiData(c, out kanji);
+      
+      if(kanji.Level == Jappy.Backend.Level.Second && kanji.Readings != null)
+      {
+        StudyList.Item item = new StudyList.Item();
+        item.Phrase = c.ToString();
 
-    Style boldStyle = new Style();
-    boldStyle.FontStyle = FontStyle.Bold;
-    Style underline = new Style();
-    underline.FontStyle = FontStyle.Underline;
-
-    BlockNode node = new BlockNode();
-    node.Children.Add(new TextNode("The "));
-    node.Children.Add(new TextNode("bold", boldStyle));
-    node.Children.Add(new TextNode(" knight "));
-    node.Children.Add(new TextNode("underscored", underline));
-    node.Children.Add(new TextNode(" the need for good algorithms!"));
-    doc.Document.Root.Children.Add(node);
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        foreach(Backend.Reading reading in kanji.Readings)
+        {
+          if(reading.Type == Jappy.Backend.ReadingType.Kun || reading.Type == Jappy.Backend.ReadingType.On)
+          {
+            if(sb.Length != 0) sb.Append(", ");
+            sb.Append(reading.Text);
+          }
+        }
+        item.Readings = sb.Length == 0 ? "<unknown reading>" : sb.ToString();
+        
+        sb.Length = 0;
+        foreach(Backend.Reading reading in kanji.Readings)
+        {
+          if(reading.Type == Jappy.Backend.ReadingType.English)
+          {
+            if(sb.Length != 0) sb.Append(", ");
+            sb.Append(reading.Text);
+          }
+        }
+        item.Meanings = sb.Length == 0 ? "<unknown meaning>" : sb.ToString();
+        
+        list.Items.Add(item);
+      }
+    }
+    
+    OnListLoaded();
   }
+  
+  static StudyTab()
+  {
+    phraseStyle = new Style(UI.JpStyle);
+    phraseStyle.ForeColor = Color.Green;
+    phraseStyle.FontSize  = 10;
+  }
+
+  public bool IsListLoaded
+  {
+    get { return list != null; }
+  }
+
+  public StudyList List
+  {
+    get { return list; }
+  }
+
+  public bool AddEntry()
+  {
+    AssertListLoaded();
+
+    StudyListEntryDialog dialog = new StudyListEntryDialog();
+    if(dialog.ShowDialog() == DialogResult.OK)
+    {
+      StudyList.Item item = new StudyList.Item();
+      dialog.SaveItem(item);
+      AddEntry(item);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public void AddEntry(StudyList.Item item)
+  {
+    list.Items.Add(item);
+    UpdateStatusText();
+  }
+
+  public bool CreateNewList()
+  {
+    if(TryCloseList())
+    {
+      StudyListNameDialog dialog = new StudyListNameDialog();
+      if(dialog.ShowDialog() == DialogResult.OK)
+      {
+        list = new StudyList();
+        list.Name = dialog.ListName;
+        OnListLoaded();
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  public bool LoadList()
+  {
+    if(!TryCloseList()) return false;
+    
+    OpenFileDialog fd = new OpenFileDialog();
+    fd.DefaultExt       = "study";
+    fd.Filter           = "Study lists (*.study)|*.study|All files (*.*)|*.*";
+    fd.InitialDirectory = StudyListPath;
+    fd.RestoreDirectory = true;
+    fd.Title            = "Load study list from...";
+    
+    if(fd.ShowDialog() != DialogResult.OK) return false;
+    
+    try
+    {
+      using(Stream stream = File.OpenRead(fd.FileName))
+      {
+        list = new StudyList();
+        list.Load(stream);
+        listFile = fd.FileName;
+        OnListLoaded();
+        return true;
+      }
+    }
+    catch(Exception e)
+    {
+      MessageBox.Show("An error occured while loading the study list.\n"+e.Message, "Error occurred",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+      list = null;
+      return false;
+    }
+  }
+
+  public bool SaveList()
+  {
+    return SaveList(false);
+  }
+
+  public bool SaveList(bool newFile)
+  {
+    AssertListLoaded();
+
+    if(newFile || listFile == null)
+    {
+      SaveFileDialog fd = new SaveFileDialog();
+      fd.DefaultExt       = "study";
+      fd.Filter           = "Study lists (*.study)|*.study|All files (*.*)|*.*";
+      fd.RestoreDirectory = true;
+      fd.Title            = "Save study list as...";
+
+      if(listFile == null)
+      {
+        fd.FileName = 
+          new System.Text.RegularExpressions.Regex(@"[^\w ]", System.Text.RegularExpressions.RegexOptions.Singleline)
+            .Replace(list.Name, "") + ".study";
+        fd.InitialDirectory = StudyListPath;
+      }
+      else
+      {
+        fd.FileName = listFile;
+        fd.InitialDirectory = Path.GetDirectoryName(listFile);
+      }
+
+      if(fd.ShowDialog() != DialogResult.OK) return false;
+      
+      listFile = fd.FileName;
+    }
+    
+    try
+    {
+      list.Save(File.Open(listFile, FileMode.Create, FileAccess.Write));
+      return true;
+    }
+    catch(Exception e)
+    {
+      MessageBox.Show("An error occured while saving the study list.\n"+e.Message, "Error occurred",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+      return false;
+    }
+  }
+
+  public bool TryCloseList()
+  {
+    DialogResult result = !IsListLoaded || !list.IsModified ? DialogResult.No :
+                            MessageBox.Show("Save changes to the current study list?", "Save changes?",
+                                            MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question,
+                                            MessageBoxDefaultButton.Button1);
+    if(result == DialogResult.Yes)
+    {
+      return SaveList();
+    }
+    else if(result == DialogResult.No)
+    {
+      list        = null;
+      listFile    = null;
+      EnableStudyMenu(false);
+      CurrentState = State.Unloaded;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  protected internal override void OnActivate()
+  {
+    ToolStripManager.Merge(menuStrip, Form.MainMenuStrip);
+
+    ToolStripMenuItem fileMenu = (ToolStripMenuItem)Form.MainMenuStrip.Items[0];
+    fileMenu.DropDownOpening += fileMenu_DropDownOpening;
+  }
+
+  protected internal override void OnDeactivate()
+  {
+    ToolStripMenuItem fileMenu = (ToolStripMenuItem)Form.MainMenuStrip.Items[0];
+    fileMenu.DropDownOpening -= fileMenu_DropDownOpening;
+
+    ToolStripManager.RevertMerge(Form.MainMenuStrip, menuStrip);
+  }
+
+  enum State
+  {
+    Unloaded, ShowingItems
+  }
+
+  sealed class EditNode : LinkNode
+  {
+    public EditNode(StudyList.Item item) : base("edit")
+    {
+      this.item = item;
+    }
+
+    protected internal override void OnMouseClick(object sender, MouseEventArgs e)
+    {
+      base.OnMouseClick(sender, e);
+
+      if(e.Button == MouseButtons.Left)
+      {
+        StudyListEntryDialog dialog = new StudyListEntryDialog();
+        dialog.LoadItem(item);
+        if(dialog.ShowDialog() == DialogResult.OK)
+        {
+          dialog.SaveItem(item);
+        }
+      }
+    }
+
+    readonly StudyList.Item item;
+  }
+
+  sealed class DeleteNode : LinkNode
+  {
+    public DeleteNode(StudyList.Item item) : base("delete")
+    {
+      this.item = item;
+    }
+
+    protected internal override void OnMouseClick(object sender, MouseEventArgs e)
+    {
+      base.OnMouseClick(sender, e);
+
+      if(e.Button == MouseButtons.Left &&
+         MessageBox.Show("Are you sure you want to delete this item?", "Delete item?", MessageBoxButtons.YesNo,
+                         MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+      {
+        item.List.Items.Remove(item);
+      }
+    }
+
+    readonly StudyList.Item item;
+  }
+
+  State CurrentState
+  {
+    get { return state; }
+    set
+    {
+      if(state != value)
+      {
+        state = value;
+        UpdateDocument();
+      }
+    }
+  }
+
+  string StudyListPath
+  {
+    get
+    {
+      string sep  = Path.DirectorySeparatorChar.ToString();
+      string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                 "AdamMil"+sep+"Jappy"+sep+"StudyLists");
+      if(!Directory.Exists(path)) Directory.CreateDirectory(path);
+      return path;
+    }
+  }
+
+  void AssertListLoaded()
+  {
+    if(!IsListLoaded) throw new InvalidOperationException("A list is not loaded.");
+  }
+
+  void EnableStudyMenu(bool enable)
+  {
+    RecursivelyEnable(studyMenu, enable);
+  }
+
+  void OnListLoaded()
+  {
+    CurrentState = State.ShowingItems;
+    EnableStudyMenu(true);
+    list.Modified += delegate(object o, EventArgs e) { UpdateDocument(); };
+  }
+
+  void OutputListEntries()
+  {
+    AssertListLoaded();
+
+    output.Clear();
+    DocumentNode root = output.Document.Root;
+    foreach(StudyList.Item item in list.Items)
+    {
+      root.Children.Add(new TextNode(item.Phrase, phraseStyle));
+      root.Children.Add(new TextNode(" ["));
+      root.Children.Add(new EditNode(item));
+      root.Children.Add(new TextNode("] ["));
+      root.Children.Add(new DeleteNode(item));
+      root.Children.Add(new TextNode("]\n"+item.Meanings+"\n\n"));
+    }
+  }
+
+  void UpdateDocument()
+  {
+    switch(CurrentState)
+    {
+      case State.Unloaded:
+        output.Clear();
+        break;
+
+      case State.ShowingItems:
+        OutputListEntries();
+        break;
+
+      default: throw new NotImplementedException();
+    }
+  }
+
+  void UpdateStatusText()
+  {
+    string statusText = null;
+    
+    if(!IsListLoaded)
+    {
+      statusText = "Load a study list by choosing Open from the File menu.";
+    }
+    else if(CurrentState == State.ShowingItems)
+    {
+      if(list.Items.Count == 0)
+      {
+        statusText = "Add items to the study list by pressing Ctrl-N or right-clicking on a headword.";
+      }
+      else
+      {
+        statusText = "Edit list items by clicking the links provided, or use the Study menu to study.";
+      }
+    }
+    
+    if(statusText != null) Form.SetStatusText(output, statusText);
+  }
+
+  void fileMenu_DropDownOpening(object sender, EventArgs e)
+  {
+    /*newEntryMenuItem.Enabled = */saveListMenuItem.Enabled = saveListAsMenuItem.Enabled = IsListLoaded;
+  }
+
+  void newEmptyListMenuItem_Click(object sender, EventArgs e)
+  {
+    CreateNewList();
+  }
+
+  void loadStudylistToolStripMenuItem_Click(object sender, EventArgs e)
+  {
+    LoadList();
+  }
+
+  void saveListMenuItem_Click(object sender, EventArgs e)
+  {
+    SaveList();
+  }
+
+  void saveListAsMenuItem_Click(object sender, EventArgs e)
+  {
+    SaveList(true);
+  }
+
+  void newEntryMenuItem_Click(object sender, EventArgs e)
+  {
+    AddEntry();
+  }
+
+  void output_MouseEnter(object sender, EventArgs e)
+  {
+    UpdateStatusText();
+  }
+
+  void output_MouseLeave(object sender, System.EventArgs e)
+  {
+    control_RestoreStatusText(sender, e);
+  }
+
+  void output_MouseClick(object sender, MouseEventArgs e)
+  {
+    doc_MouseClick(sender, e);
+  }
+
+  StudyList list;
+  string listFile;
+  State state;
+
+  static void RecursivelyEnable(ToolStripMenuItem item, bool enable)
+  {
+    item.Enabled = enable;
+    foreach(ToolStripMenuItem child in item.DropDownItems)
+    {
+      RecursivelyEnable(child, enable);
+    }
+  }
+  
+  static readonly Style phraseStyle;
 }
+#endregion
+
+#region StudyList
+class StudyList
+{
+  public StudyList()
+  {
+    items = new ItemCollection(this);
+  }
+
+  #region Item
+  public class Item
+  {
+    public Item() { }
+
+    internal Item(XmlElement item)
+    {
+      XmlAttribute attr = item.Attributes["shown"];
+      ShownCount = attr == null ? 0 : int.Parse(attr.Value);
+
+      attr = item.Attributes["success"];
+      SuccessCount = attr == null ? 0 : int.Parse(attr.Value);
+
+      Phrase = item.SelectSingleNode("phrase").InnerText;
+      Meanings = item.SelectSingleNode("meanings").InnerText;
+      
+      XmlElement child = (XmlElement)item.SelectSingleNode("readings");
+      if(child != null) Readings = child.InnerText;
+
+      child = (XmlElement)item.SelectSingleNode("example/source");
+      if(child != null) ExampleSource = child.InnerText;
+
+      child = (XmlElement)item.SelectSingleNode("example/destination");
+      if(child != null) ExampleDest = child.InnerText;
+    }
+
+    public StudyList List
+    {
+      get { return owningList; }
+    }
+
+    public double SuccessRate
+    {
+      get { return ShownCount == 0 ? 0 : SuccessCount / (double)ShownCount; }
+    }
+
+    public string Phrase
+    {
+      get { return phrase; }
+      set
+      {
+        if(value != phrase)
+        {
+          phrase = value;
+          SetModified();
+        }
+      }
+    }
+
+    public string Readings
+    {
+      get { return readings; }
+      set
+      {
+        if(value != readings)
+        {
+          readings = value;
+          SetModified();
+        }
+      }
+    }
+
+    public string Meanings
+    {
+      get { return meanings; }
+      set
+      {
+        if(value != meanings)
+        {
+          meanings = value;
+          SetModified();
+        }
+      }
+    }
+
+    public string ExampleSource
+    {
+      get { return exampleSource; }
+      set
+      {
+        if(value != exampleSource)
+        {
+          exampleSource = value;
+          SetModified();
+        }
+      }
+    }
+
+    public string ExampleDest
+    {
+      get { return exampleDest; }
+      set
+      {
+        if(value != exampleDest)
+        {
+          exampleDest = value;
+          SetModified();
+        }
+      }
+    }
+
+    public int ShownCount
+    {
+      get { return shownCount; }
+      set
+      {
+        if(value != shownCount)
+        {
+          shownCount = value;
+          SetModified();
+        }
+      }
+    }
+
+    public int SuccessCount
+    {
+      get { return successCount; }
+      set
+      {
+        if(value != successCount)
+        {
+          successCount = value;
+          SetModified();
+        }
+      }
+    }
+
+    internal void Write(XmlWriter writer)
+    {
+      writer.WriteStartElement("item");
+      writer.WriteAttributeString("shown", ShownCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+      writer.WriteAttributeString("success", SuccessCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+      writer.WriteStartElement("phrase");
+      writer.WriteString(Phrase);
+      writer.WriteEndElement();
+      
+      if(Readings != null)
+      {
+        writer.WriteStartElement("readings");
+        writer.WriteString(Readings);
+        writer.WriteEndElement();
+      }
+      
+      writer.WriteStartElement("meanings");
+      writer.WriteString(Meanings);
+      writer.WriteEndElement();
+      
+      if(ExampleSource != null || ExampleDest != null)
+      {
+        writer.WriteStartElement("example");
+        if(ExampleSource != null)
+        {
+          writer.WriteStartElement("source");
+          writer.WriteString(ExampleSource);
+          writer.WriteEndElement();
+        }
+        if(ExampleDest != null)
+        {
+          writer.WriteStartElement("destination");
+          writer.WriteString(ExampleDest);
+          writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+      }
+      
+      writer.WriteEndElement();
+    }
+
+    void SetModified()
+    {
+      if(owningList != null)
+      {
+        owningList.SetModified();
+      }
+    }
+
+    internal StudyList owningList;
+    string phrase, readings, meanings, exampleSource, exampleDest;
+    int shownCount, successCount;
+  }
+  #endregion
+
+  #region ItemCollection
+  public sealed class ItemCollection : Collection<Item>
+  {
+    public ItemCollection(StudyList owner)
+    {
+      this.owner = owner;
+    }
+
+    protected override void ClearItems()
+    {
+      base.ClearItems();
+      foreach(Item item in this) item.owningList = null;
+      owner.SetModified();
+    }
+
+    protected override void InsertItem(int index, Item item)
+    {
+      AssertValidItem(item);
+      base.InsertItem(index, item);
+      item.owningList = owner;
+      owner.SetModified();
+    }
+
+    protected override void RemoveItem(int index)
+    {
+      this[index].owningList = null;
+      base.RemoveItem(index);
+      owner.SetModified();
+    }
+
+    protected override void SetItem(int index, Item item)
+    {
+      if(item == this[index]) return;
+
+      AssertValidItem(item);
+      this[index].owningList = null;
+      base.SetItem(index, item);
+      item.owningList = owner;
+      owner.SetModified();
+    }
+
+    readonly StudyList owner;
+
+    static void AssertValidItem(Item item)
+    {
+      if(item == null) throw new ArgumentNullException();
+      if(item.List != null) throw new ArgumentException("This item already belongs to a study list.");
+    }
+  }
+  #endregion
+
+  public event EventHandler Modified;
+
+  public string Name;
+
+  public ItemCollection Items
+  {
+    get { return items; }
+  }
+  
+  public bool IsModified
+  {
+    get { return isModified; }
+  }
+  
+  public void Load(Stream stream)
+  {
+    ValidationEventHandler validate = delegate(object sender, ValidationEventArgs e) { throw e.Exception; };
+    
+    XmlSchema schema = XmlSchema.Read(new StringReader(Properties.Resources.StudyListSchema), validate);
+
+    XmlDocument doc = new XmlDocument();
+    doc.Schemas.Add(schema);
+    doc.Load(stream);
+    doc.Validate(validate);
+
+    XmlElement el = doc.DocumentElement;
+
+    if(int.Parse(el.Attributes["version"].Value) > 1)
+    {
+      throw new ArgumentException("This study list was created by a later version of the dictionary.");
+    }
+
+    Name = el.Attributes["name"].Value;
+    
+    el = (XmlElement)el.SelectSingleNode("items");
+
+    items.Clear();
+    foreach(XmlElement item in el.ChildNodes)
+    {
+      items.Add(new Item(item));
+    }
+    isModified = false;
+  }
+
+  public void Save(Stream stream)
+  {
+    XmlWriterSettings settings = new XmlWriterSettings();
+    settings.Indent = true;
+
+    XmlWriter writer = XmlWriter.Create(stream, settings);
+    writer.WriteStartElement("studyList");
+    writer.WriteAttributeString("version", "1");
+    writer.WriteAttributeString("name", Name == null ? "" : Name);
+    writer.WriteStartElement("items");
+    foreach(Item item in items)
+    {
+      item.Write(writer);
+    }
+    writer.WriteEndElement();
+    writer.WriteEndElement();
+    writer.Flush();
+    isModified = false;
+  }
+  
+  void SetModified()
+  {
+    isModified = true;
+    if(Modified != null) Modified(this, EventArgs.Empty);
+  }
+
+  readonly ItemCollection items;
+  bool isModified;
+}
+#endregion
 
 } // namespace Jappy

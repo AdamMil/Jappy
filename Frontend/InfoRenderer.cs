@@ -735,6 +735,17 @@ class Style
 {
   public Style() { }
 
+  public Style(Style prototype)
+  {
+    if(prototype == null) throw new ArgumentNullException();
+    Cursor    = prototype.Cursor;
+    BackColor = prototype.BackColor;
+    ForeColor = prototype.ForeColor;
+    FontName  = prototype.FontName;
+    FontSize  = prototype.FontSize;
+    FontStyle = prototype.FontStyle;
+  }
+
   static Style()
   {
     Default = new Style();
@@ -1064,19 +1075,42 @@ class DocumentRenderer : Control
 
     public virtual int GetCharOffset(Graphics gdi, Point pt)
     {
+      TextRegion minRegion = null;
+      int minDistance = int.MaxValue;
+      
       foreach(TextRegion region in Children)
       {
-        if(region.Bounds.Contains(pt))
+        int distance = CalculateDistance(pt, region.Bounds);
+        if(distance < minDistance)
         {
-          pt.Offset(-region.Left, -region.Top);
-          return region.GetCharOffset(gdi, pt);
+          minDistance = distance;
+          minRegion   = region;
+          if(distance == 0) break; // zero signifies containment of the point, so we need look no further
         }
       }
-      return -1;
+
+      if(minRegion != null)
+      {
+        pt.Offset(-minRegion.Left, -minRegion.Top);
+        return minRegion.GetCharOffset(gdi, pt);
+      }
+      else
+      {
+        return -1;
+      }
     }
 
     public Rectangle Bounds;
     public TextSpan TextSpan;
+    
+    // returns the squared distance between a point and a rectangle, or zero if the point is contained within the rect
+    static int CalculateDistance(Point pt, Rectangle rect)
+    {
+      int xDist, yDist;
+      xDist = pt.X < rect.Left ? rect.Left-pt.X : pt.X >= rect.Right  ? pt.X-rect.Right +1 : 0;
+      yDist = pt.Y < rect.Top  ? rect.Top -pt.Y : pt.Y >= rect.Bottom ? pt.Y-rect.Bottom+1 : 0;
+      return xDist*xDist + yDist*yDist;
+    }
   }
   
   abstract class BlockBase : TextRegion

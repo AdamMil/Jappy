@@ -68,7 +68,7 @@ namespace Jappy
             fileMenu});
       menuStrip.Location = new System.Drawing.Point(0, 0);
       menuStrip.Name = "menuStrip";
-      menuStrip.Size = new System.Drawing.Size(574, 24);
+      menuStrip.Size = new System.Drawing.Size(752, 24);
       menuStrip.TabIndex = 10;
       // 
       // fileMenu
@@ -81,6 +81,7 @@ namespace Jappy
       // 
       // exitMenuItem
       // 
+      exitMenuItem.MergeIndex = 100;
       exitMenuItem.Name = "exitMenuItem";
       exitMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
       exitMenuItem.Size = new System.Drawing.Size(132, 22);
@@ -91,16 +92,16 @@ namespace Jappy
       // 
       statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusText});
-      statusBar.Location = new System.Drawing.Point(0, 451);
+      statusBar.Location = new System.Drawing.Point(0, 511);
       statusBar.Name = "statusBar";
-      statusBar.Size = new System.Drawing.Size(574, 22);
+      statusBar.Size = new System.Drawing.Size(752, 22);
       statusBar.TabIndex = 3;
       // 
       // statusText
       // 
       this.statusText.AutoSize = false;
       this.statusText.Name = "statusText";
-      this.statusText.Size = new System.Drawing.Size(559, 17);
+      this.statusText.Size = new System.Drawing.Size(737, 17);
       this.statusText.Spring = true;
       this.statusText.Text = "Welcome to Jappy!";
       this.statusText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -112,7 +113,7 @@ namespace Jappy
       dictionarySearchControl.Location = new System.Drawing.Point(0, 0);
       dictionarySearchControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       dictionarySearchControl.Name = "dictionarySearchControl";
-      dictionarySearchControl.Size = new System.Drawing.Size(566, 398);
+      dictionarySearchControl.Size = new System.Drawing.Size(744, 458);
       dictionarySearchControl.TabIndex = 0;
       // 
       // translateControl
@@ -124,6 +125,24 @@ namespace Jappy
       translateControl.Name = "translateControl";
       translateControl.Size = new System.Drawing.Size(566, 398);
       translateControl.TabIndex = 0;
+      // 
+      // exampleSearchControl
+      // 
+      exampleSearchControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      exampleSearchControl.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      exampleSearchControl.Location = new System.Drawing.Point(0, 0);
+      exampleSearchControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      exampleSearchControl.Name = "exampleSearchControl";
+      exampleSearchControl.Size = new System.Drawing.Size(566, 398);
+      exampleSearchControl.TabIndex = 0;
+      // 
+      // studyTabControl
+      // 
+      studyTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      studyTabControl.Location = new System.Drawing.Point(3, 3);
+      studyTabControl.Name = "studyTabControl";
+      studyTabControl.Size = new System.Drawing.Size(560, 392);
+      studyTabControl.TabIndex = 0;
       // 
       // tabControl
       // 
@@ -138,16 +157,18 @@ namespace Jappy
       this.tabControl.Name = "tabControl";
       this.tabControl.SelectedIndex = 0;
       this.tabControl.ShowToolTips = true;
-      this.tabControl.Size = new System.Drawing.Size(574, 427);
+      this.tabControl.Size = new System.Drawing.Size(752, 487);
       this.tabControl.TabIndex = 4;
       this.tabControl.TabStop = false;
+      this.tabControl.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl_Selecting);
+      this.tabControl.Deselecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl_Deselecting);
       // 
       // dictionaryPage
       // 
       this.dictionaryPage.Controls.Add(dictionarySearchControl);
       this.dictionaryPage.Location = new System.Drawing.Point(4, 25);
       this.dictionaryPage.Name = "dictionaryPage";
-      this.dictionaryPage.Size = new System.Drawing.Size(566, 398);
+      this.dictionaryPage.Size = new System.Drawing.Size(744, 458);
       this.dictionaryPage.TabIndex = 0;
       this.dictionaryPage.Text = "Dictionary";
       this.dictionaryPage.ToolTipText = "Look up words in the dictionary.";
@@ -197,29 +218,11 @@ namespace Jappy
       this.notifyIcon.Text = "Jappy. Click to restore.";
       this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
       // 
-      // exampleSearchControl
-      // 
-      exampleSearchControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      exampleSearchControl.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      exampleSearchControl.Location = new System.Drawing.Point(0, 0);
-      exampleSearchControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      exampleSearchControl.Name = "exampleSearchControl";
-      exampleSearchControl.Size = new System.Drawing.Size(566, 398);
-      exampleSearchControl.TabIndex = 0;
-      // 
-      // studyTabControl
-      // 
-      studyTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      studyTabControl.Location = new System.Drawing.Point(3, 3);
-      studyTabControl.Name = "studyTabControl";
-      studyTabControl.Size = new System.Drawing.Size(560, 392);
-      studyTabControl.TabIndex = 0;
-      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(574, 473);
+      this.ClientSize = new System.Drawing.Size(752, 533);
       this.Controls.Add(this.tabControl);
       this.Controls.Add(statusBar);
       this.Controls.Add(menuStrip);
