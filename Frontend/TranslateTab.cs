@@ -118,7 +118,7 @@ partial class TranslateTab : TabBase
     if(output.Document.Root.Children.Count == 0) // if there are no results
     {
       Form.SetStatusText(output,
-                         "Type something into the search box above and press Ctrl-Enter to get search results.");
+                         "Enter Japanese text into the box above and press Ctrl-Enter to lookup words in the text.");
     }
     else
     {

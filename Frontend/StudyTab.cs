@@ -66,11 +66,11 @@ partial class StudyTab : TabBase
   {
     if(TryCloseList())
     {
-      StudyListNameDialog dialog = new StudyListNameDialog();
+      StudyListDialog dialog = new StudyListDialog();
       if(dialog.ShowDialog() == DialogResult.OK)
       {
         list = new StudyList();
-        list.Name = dialog.ListName;
+        dialog.SaveList(list);
         OnListLoaded();
         return true;
       }
@@ -443,6 +443,17 @@ partial class StudyTab : TabBase
     OnListLoaded();
   }
 
+  void settingsMenuItem_Click(object sender, EventArgs e)
+  {
+    StudyListDialog dialog = new StudyListDialog();
+    dialog.LoadList(list);
+
+    if(dialog.ShowDialog() == DialogResult.OK)
+    {
+      dialog.SaveList(list);
+    }
+  }
+
   StudyList list;
   string listFile;
   State state;
@@ -478,8 +489,8 @@ class StudyList
       XmlAttribute attr = item.Attributes["shown"];
       ShownCount = attr == null ? 0 : int.Parse(attr.Value);
 
-      attr = item.Attributes["success"];
-      SuccessCount = attr == null ? 0 : int.Parse(attr.Value);
+      attr = item.Attributes["correct"];
+      CorrectCount = attr == null ? 0 : int.Parse(attr.Value);
 
       Phrase = item.SelectSingleNode("phrase").InnerText;
       Meanings = item.SelectSingleNode("meanings").InnerText;
@@ -499,9 +510,9 @@ class StudyList
       get { return owningList; }
     }
 
-    public double SuccessRate
+    public double CorrectRate
     {
-      get { return ShownCount == 0 ? 0 : SuccessCount / (double)ShownCount; }
+      get { return ShownCount == 0 ? 0 : CorrectCount / (double)ShownCount; }
     }
 
     public string Phrase
@@ -582,14 +593,14 @@ class StudyList
       }
     }
 
-    public int SuccessCount
+    public int CorrectCount
     {
-      get { return successCount; }
+      get { return correctCount; }
       set
       {
-        if(value != successCount)
+        if(value != correctCount)
         {
-          successCount = value;
+          correctCount = value;
           SetModified();
         }
       }
@@ -599,7 +610,7 @@ class StudyList
     {
       writer.WriteStartElement("item");
       writer.WriteAttributeString("shown", ShownCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
-      writer.WriteAttributeString("success", SuccessCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+      writer.WriteAttributeString("correct", CorrectCount.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
       writer.WriteStartElement("phrase");
       writer.WriteString(Phrase);
@@ -647,7 +658,7 @@ class StudyList
 
     internal StudyList owningList;
     string phrase, readings, meanings, exampleSource, exampleDest;
-    int shownCount, successCount;
+    int shownCount, correctCount;
   }
   #endregion
 
@@ -704,7 +715,45 @@ class StudyList
 
   public event EventHandler Modified;
 
-  public string Name;
+  public string Name
+  {
+    get { return name; }
+    set
+    {
+      if(value == null) throw new ArgumentNullException();
+      if(value != name)
+      {
+        name = value;
+        SetModified();
+      }
+    }
+  }
+
+  public bool HintExample
+  {
+    get { return hintExamples; }
+    set
+    {
+      if(value != hintExamples)
+      {
+        hintExamples = value;
+        SetModified();
+      }
+    }
+  }
+
+  public bool HintReadings
+  {
+    get { return hintReadings; }
+    set
+    {
+      if(value != hintReadings)
+      {
+        hintReadings = value;
+        SetModified();
+      }
+    }
+  }
 
   public ItemCollection Items
   {
@@ -729,12 +778,18 @@ class StudyList
 
     XmlElement el = doc.DocumentElement;
 
-    if(int.Parse(el.Attributes["version"].Value) > 1)
+    if(int.Parse(el.Attributes["version"].Value) != 1)
     {
-      throw new ArgumentException("This study list was created by a later version of the dictionary.");
+      throw new ArgumentException("This study list was created by a different version of the dictionary.");
     }
 
     Name = el.Attributes["name"].Value;
+
+    XmlAttribute attr = el.Attributes["hintReadings"];
+    hintReadings = attr != null && XmlConvert.ToBoolean(attr.Value);
+
+    attr = el.Attributes["hintExamples"];
+    hintExamples = attr != null && XmlConvert.ToBoolean(attr.Value);
     
     el = (XmlElement)el.SelectSingleNode("items");
 
@@ -743,6 +798,7 @@ class StudyList
     {
       items.Add(new Item(item));
     }
+
     isModified = false;
   }
 
@@ -755,6 +811,8 @@ class StudyList
     writer.WriteStartElement("studyList");
     writer.WriteAttributeString("version", "1");
     writer.WriteAttributeString("name", Name == null ? "" : Name);
+    writer.WriteAttributeString("hintReadings", hintReadings ? "true" : "false");
+    writer.WriteAttributeString("hintExamples", hintExamples ? "true" : "false");
     writer.WriteStartElement("items");
     foreach(Item item in items)
     {
@@ -763,6 +821,7 @@ class StudyList
     writer.WriteEndElement();
     writer.WriteEndElement();
     writer.Flush();
+
     isModified = false;
   }
   
@@ -773,7 +832,8 @@ class StudyList
   }
 
   readonly ItemCollection items;
-  bool isModified;
+  string name = string.Empty;
+  bool isModified, hintReadings, hintExamples;
 }
 #endregion
 

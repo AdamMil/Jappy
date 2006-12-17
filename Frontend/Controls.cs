@@ -72,10 +72,8 @@ class TabBase : UserControl
   {
     ContextMenuStrip menu = new ContextMenuStrip();
     menu.Items.Add("&Copy", null, delegate(object s, EventArgs a) { control.Copy(); });
-    menu.Items.Add("&Lookup (exact)", null, delegate(object s, EventArgs a)
-                     { Form.GetDictionarySearchTab().PerformDictionarySearch(control.SelectedText); });
-    menu.Items.Add("Lookup (starts &with)", null, delegate(object s, EventArgs a)
-                     { Form.GetDictionarySearchTab().PerformDictionarySearch(control.SelectedText+"*"); });
+    menu.Items.Add("&Lookup (exact)", null, delegate(object s, EventArgs a) { SearchDictionary(control, false); });
+    menu.Items.Add("Lookup (starts &with)", null, delegate(object s, EventArgs a) { SearchDictionary(control, true); });
     return menu;
   }
 
@@ -102,6 +100,13 @@ class TabBase : UserControl
   protected void control_RestoreStatusText(object sender, EventArgs e)
   {
     Form.RestoreStatusText((Control)sender);
+  }
+  
+  void SearchDictionary(DocumentRenderer control, bool startsWith)
+  {
+    string text = control.SelectedText.Trim();
+    if(startsWith) text += "*";
+    Form.GetDictionarySearchTab().PerformDictionarySearch(text);
   }
 }
 #endregion
