@@ -31,6 +31,7 @@ namespace Jappy
       System.Windows.Forms.ToolStripMenuItem fileMenu;
       System.Windows.Forms.ToolStripMenuItem newListMenu;
       System.Windows.Forms.ToolStripMenuItem newEmptyListMenuItem;
+      System.Windows.Forms.ToolStripSeparator menuSep4;
       System.Windows.Forms.ToolStripMenuItem fromLevel1KanjiToolStripMenuItem;
       System.Windows.Forms.ToolStripMenuItem fromLevel2KanjiToolStripMenuItem;
       System.Windows.Forms.ToolStripMenuItem fromLevel3KanjiToolStripMenuItem;
@@ -43,7 +44,6 @@ namespace Jappy
       System.Windows.Forms.ToolStripSeparator menuSep3;
       System.Windows.Forms.ToolStripMenuItem settingsMenuItem;
       System.Windows.Forms.ToolStripMenuItem goMenuItem;
-      System.Windows.Forms.ToolStripSeparator menuSep4;
       this.saveListMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveListAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.output = new Jappy.DocumentRenderer();
@@ -53,6 +53,7 @@ namespace Jappy
       fileMenu = new System.Windows.Forms.ToolStripMenuItem();
       newListMenu = new System.Windows.Forms.ToolStripMenuItem();
       newEmptyListMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      menuSep4 = new System.Windows.Forms.ToolStripSeparator();
       fromLevel1KanjiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       fromLevel2KanjiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       fromLevel3KanjiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +66,6 @@ namespace Jappy
       menuSep3 = new System.Windows.Forms.ToolStripSeparator();
       settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       goMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      menuSep4 = new System.Windows.Forms.ToolStripSeparator();
       this.menuStrip.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -109,6 +109,11 @@ namespace Jappy
       newEmptyListMenuItem.Size = new System.Drawing.Size(201, 22);
       newEmptyListMenuItem.Text = "&Empty list...";
       newEmptyListMenuItem.Click += new System.EventHandler(this.newEmptyListMenuItem_Click);
+      // 
+      // menuSep4
+      // 
+      menuSep4.Name = "menuSep4";
+      menuSep4.Size = new System.Drawing.Size(198, 6);
       // 
       // fromLevel1KanjiToolStripMenuItem
       // 
@@ -216,6 +221,7 @@ namespace Jappy
       settingsMenuItem.Name = "settingsMenuItem";
       settingsMenuItem.Size = new System.Drawing.Size(175, 22);
       settingsMenuItem.Text = "List &settings...";
+      settingsMenuItem.Click += new System.EventHandler(this.settingsMenuItem_Click);
       // 
       // goMenuItem
       // 
@@ -266,11 +272,7 @@ namespace Jappy
       this.newEntryMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
       this.newEntryMenuItem.Size = new System.Drawing.Size(175, 22);
       this.newEntryMenuItem.Text = "&New entry...";
-      // 
-      // menuSep4
-      // 
-      menuSep4.Name = "menuSep4";
-      menuSep4.Size = new System.Drawing.Size(198, 6);
+      this.newEntryMenuItem.Click += new System.EventHandler(this.newEntryMenuItem_Click);
       // 
       // StudyTab
       // 

@@ -9,6 +9,7 @@ partial class StudyListEntryDialog : Form
   public StudyListEntryDialog()
   {
     InitializeComponent();
+    SetRatio(0, 0);
   }
   
   public string Phrase
@@ -60,7 +61,7 @@ partial class StudyListEntryDialog : Form
     Meanings  = item.Meanings;
     EnExample = item.ExampleDest;
     JpExample = item.ExampleSource;
-    SetSuccess(item.SuccessCount, item.ShownCount);
+    SetRatio(item.CorrectCount, item.ShownCount);
   }
 
   public void SaveItem(StudyList.Item item)
@@ -70,7 +71,7 @@ partial class StudyListEntryDialog : Form
     item.Meanings      = Meanings;
     item.ExampleDest   = EnExample;
     item.ExampleSource = JpExample;
-    item.SuccessCount  = successCount;
+    item.CorrectCount  = correctCount;
     item.ShownCount    = shownCount;
   }
 
@@ -78,23 +79,24 @@ partial class StudyListEntryDialog : Form
   {
     base.OnClosing(e);
 
-    if(saveClicked && string.IsNullOrEmpty(Phrase) || string.IsNullOrEmpty(Meanings))
+    if(saveClicked && (string.IsNullOrEmpty(Phrase) || string.IsNullOrEmpty(Meanings)))
     {
       MessageBox.Show("Please enter a value for the phrase and meanings.", "Values required");
       e.Cancel = true;
+      saveClicked = false;
     }
   }
 
-  void SetSuccess(int success, int shown)
+  void SetRatio(int correct, int shown)
   {
-    successCount = success;
+    correctCount = correct;
     shownCount   = shown;
-    lblSuccess.Text = "Succeeded " + success + " of " + shown;
+    lblSuccess.Text = "Correct " + correct + " of " + shown;
   }
 
   void btnReset_Click(object sender, EventArgs e)
   {
-    SetSuccess(0, 0);
+    SetRatio(0, 0);
   }
 
   void btnSave_Click(object sender, EventArgs e)
@@ -102,7 +104,7 @@ partial class StudyListEntryDialog : Form
     saveClicked = true;
   }
 
-  int successCount, shownCount;
+  int correctCount, shownCount;
   bool saveClicked;
 }
 

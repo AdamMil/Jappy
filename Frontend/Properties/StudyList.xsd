@@ -16,7 +16,7 @@
     </xs:sequence>
 
     <xs:attribute name="shown" type="xs:int" />
-    <xs:attribute name="success" type="xs:int" />
+    <xs:attribute name="correct" type="xs:int" />
   </xs:complexType>
 
   <xs:complexType name="items">
@@ -33,6 +33,8 @@
 
       <xs:attribute name="version" use="required" type="xs:int" />
       <xs:attribute name="name" use="required" type="xs:string" />
+      <xs:attribute name="hintReadings" type="xs:boolean" />
+      <xs:attribute name="hintExamples" type="xs:boolean" />
     </xs:complexType>
   </xs:element>
 </xs:schema>

@@ -304,7 +304,7 @@ public unsafe sealed class IOReader : IOBuffer
 
   public string ReadString(int nchars)
   {
-    if(nchars == 0) return null;
+    if(nchars == 0) return string.Empty;
     char* data = (char*)ReadContiguousData(nchars * sizeof(char));
     MakeSystemEndian2(data, nchars);
     return new string(data, 0, nchars);
@@ -313,7 +313,7 @@ public unsafe sealed class IOReader : IOBuffer
   public string ReadStringWithLength()
   {
     int nChars = ReadInt();
-    return ReadString(nChars);
+    return nChars == -1 ? null : ReadString(nChars);
   }
 
   public void Skip(int nbytes)
@@ -327,7 +327,7 @@ public unsafe sealed class IOReader : IOBuffer
   public void SkipStringWithLength()
   {
     int length = ReadInt();
-    Skip(length * sizeof(char));
+    if(length > 0) Skip(length * sizeof(char));
   }
 
   protected override byte[] CreateResizeBuffer(int newSize)
@@ -568,7 +568,7 @@ public unsafe sealed class IOWriter : IOBuffer
   {
     if(str == null)
     {
-      Add(0);
+      Add(-1);
     }
     else
     {

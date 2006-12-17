@@ -96,9 +96,9 @@
       <SubType>Designer</SubType>
       <DependentUpon>StudyListEntryDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="StudyListNameDialog.resx">
+    <EmbeddedResource Include="StudyListDialog.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>StudyListNameDialog.cs</DependentUpon>
+      <DependentUpon>StudyListDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="StudyTab.resx">
       <SubType>Designer</SubType>
@@ -131,11 +131,11 @@
     <Compile Include="StudyListEntryDialog.Designer.cs">
       <DependentUpon>StudyListEntryDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="StudyListNameDialog.cs">
+    <Compile Include="StudyListDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StudyListNameDialog.Designer.cs">
-      <DependentUpon>StudyListNameDialog.cs</DependentUpon>
+    <Compile Include="StudyListDialog.Designer.cs">
+      <DependentUpon>StudyListDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="StudyTab.cs">
       <SubType>UserControl</SubType>

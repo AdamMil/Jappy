@@ -1076,11 +1076,11 @@ class DocumentRenderer : Control
     public virtual int GetCharOffset(Graphics gdi, Point pt)
     {
       TextRegion minRegion = null;
-      int minDistance = int.MaxValue;
+      uint minDistance = uint.MaxValue;
       
       foreach(TextRegion region in Children)
       {
-        int distance = CalculateDistance(pt, region.Bounds);
+        uint distance = CalculateDistance(pt, region.Bounds);
         if(distance < minDistance)
         {
           minDistance = distance;
@@ -1103,13 +1103,16 @@ class DocumentRenderer : Control
     public Rectangle Bounds;
     public TextSpan TextSpan;
     
-    // returns the squared distance between a point and a rectangle, or zero if the point is contained within the rect
-    static int CalculateDistance(Point pt, Rectangle rect)
+    // returns the distance between a point and a rectangle, or zero if the point is contained within the rect.
+    // distances are biased so that points contained vertically are always nearer than points not contained vertically
+    static uint CalculateDistance(Point pt, Rectangle rect)
     {
       int xDist, yDist;
       xDist = pt.X < rect.Left ? rect.Left-pt.X : pt.X >= rect.Right  ? pt.X-rect.Right +1 : 0;
       yDist = pt.Y < rect.Top  ? rect.Top -pt.Y : pt.Y >= rect.Bottom ? pt.Y-rect.Bottom+1 : 0;
-      return xDist*xDist + yDist*yDist;
+      uint distance = (uint)(xDist*xDist + yDist*yDist);
+      if(yDist != 0) distance |= 0x80000000;
+      return distance;
     }
   }
   
@@ -1464,15 +1467,6 @@ class DocumentRenderer : Control
             lineObjs.Add(new Line(spans.ToArray()));
             spans.Clear();
             currentWidth = 0;
-
-            // since the word is now on its own line, trim it. if that changed the length, re-measure it
-            string trimmed = word.TrimStart();
-            if(trimmed.Length != word.Length)
-            {
-              size = TextRenderer.MeasureText(gdi, word, font, new Size(availableWidth, int.MaxValue), measureFlags);
-              span.TextStart += word.Length - trimmed.Length;
-            }
-            word = trimmed;
           }
 
           currentWidth += size.Width; // increase the current line width by the width of the span
@@ -1641,8 +1635,9 @@ class DocumentRenderer : Control
         if(dragEnd != -1)
         {
           int dragStart = dragSelectionStart;
-          if(dragEnd < dragStart) Utilities.Swap(ref dragStart, ref dragEnd);
-          Select(dragStart, dragEnd-dragStart);
+          // the selection should be inclusive where the user started dragging and exclusive where he stopped
+          if(dragEnd >= dragStart) Select(dragStart, dragEnd-dragStart);
+          else Select(dragEnd+1, dragStart-dragEnd);
         }
       }
     }

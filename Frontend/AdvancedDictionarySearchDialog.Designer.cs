@@ -79,7 +79,7 @@ namespace Jappy
       lblDictionary.Name = "lblDictionary";
       lblDictionary.Size = new System.Drawing.Size(76, 19);
       lblDictionary.TabIndex = 1;
-      lblDictionary.Text = "Dictionary:";
+      lblDictionary.Text = "&Dictionary:";
       lblDictionary.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // lblFrequency
@@ -89,7 +89,7 @@ namespace Jappy
       lblFrequency.Name = "lblFrequency";
       lblFrequency.Size = new System.Drawing.Size(149, 19);
       lblFrequency.TabIndex = 2;
-      lblFrequency.Text = "Frequency Threshold:";
+      lblFrequency.Text = "&Frequency Threshold:";
       lblFrequency.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // lblPOS
@@ -100,7 +100,7 @@ namespace Jappy
       lblPOS.Name = "lblPOS";
       lblPOS.Size = new System.Drawing.Size(106, 14);
       lblPOS.TabIndex = 4;
-      lblPOS.Text = "Parts of Speech";
+      lblPOS.Text = "&Parts of Speech";
       lblPOS.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
       // 
       // lblItemLimit
@@ -110,7 +110,7 @@ namespace Jappy
       lblItemLimit.Name = "lblItemLimit";
       lblItemLimit.Size = new System.Drawing.Size(85, 19);
       lblItemLimit.TabIndex = 3;
-      lblItemLimit.Text = "Item Limit:";
+      lblItemLimit.Text = "Item &Limit:";
       lblItemLimit.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // txtQuery
