@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using BinaryReader = AdamMil.IO.BinaryReader;
+using BinaryWriter = AdamMil.IO.BinaryWriter;
 
 namespace Jappy.Backend
 {
@@ -63,7 +65,7 @@ public sealed class StringCompressor
     BuildCodes();
   }
 
-  public void WriteString(IOWriter writer, string str)
+  public void WriteString(BinaryWriter writer, string str)
   {
     if(rootNode == null) throw new InvalidOperationException("No strings have been added to the compressor.");
     if(str == null) str = string.Empty; // treat null strings as empty strings when writing
@@ -79,11 +81,11 @@ public sealed class StringCompressor
     if(bitsAdded != 0) // if there's any data remaining in b, write it
     {
       buffer >>= 8-(int)bitsAdded; // shift zeros into the high bits to fill out the byte
-      writer.Add(buffer);
+      writer.Write(buffer);
     }
   }
 
-  public unsafe string ReadString(IOReader reader)
+  public unsafe string ReadString(BinaryReader reader)
   {
     if(loadedTree == null) throw new InvalidOperationException("The compressor has not been loaded.");
 
@@ -128,14 +130,14 @@ public sealed class StringCompressor
     return stringBuilder.Length == 0 ? null : stringBuilder.ToString();
   }
 
-  public void Load(IOReader reader)
+  public void Load(BinaryReader reader)
   {
     if(reader == null) throw new ArgumentNullException();
     Unload();
-    loadedTree = reader.ReadUShortArray(reader.ReadInt());
+    loadedTree = reader.ReadUInt16(reader.ReadInt32());
   }
 
-  public void Save(IOWriter writer)
+  public void Save(BinaryWriter writer)
   {
     if(writer == null) throw new ArgumentNullException();
     if(rootNode == null) throw new InvalidOperationException("No strings have been added to the compressor.");
@@ -145,13 +147,13 @@ public sealed class StringCompressor
     // zero, no character is associated, and the node is an internal node. the second word stores the offset, in nodes,
     // from the current node to the right child node. the left child node will immediately follow its parent node.
     MemoryStream packedTree = new MemoryStream();
-    using(IOWriter treeWriter = new IOWriter(packedTree))
+    using(BinaryWriter treeWriter = new BinaryWriter(packedTree))
     {
       CopyTreeToArray(treeWriter);
     }
 
-    writer.Add((int)packedTree.Length / 2); // the length is in words, so we divide by 2
-    writer.Add(packedTree.ToArray());
+    writer.Write((int)packedTree.Length / 2); // the length is in words, so we divide by 2
+    writer.Write(packedTree.ToArray());
   }
 
   const char EOD = (char)3; // a character used for end-of-data (ASCII 3 == ETX ["End Of Text"])
@@ -227,7 +229,7 @@ public sealed class StringCompressor
     }
   }
 
-  void CopyTreeToArray(IOWriter writer)
+  void CopyTreeToArray(BinaryWriter writer)
   {
     CopyTreeToArray(writer, rootNode);
   }
@@ -239,7 +241,7 @@ public sealed class StringCompressor
     loadedTree  = null;
   }
 
-  void WriteCharacter(IOWriter writer, ref uint bitsAdded, ref byte buffer, char c)
+  void WriteCharacter(BinaryWriter writer, ref uint bitsAdded, ref byte buffer, char c)
   {
     uint code;
     if(!inMemoryMap.TryGetValue(c, out code))
@@ -255,7 +257,7 @@ public sealed class StringCompressor
       code >>= 1;
       if(++bitsAdded == 8)
       {
-        writer.Add(buffer);
+        writer.Write(buffer);
         bitsAdded = 0;
       }
     } while(--codeLength != 0);
@@ -267,13 +269,13 @@ public sealed class StringCompressor
   ushort[] loadedTree;
   StringBuilder stringBuilder = new StringBuilder();
 
-  static void CopyTreeToArray(IOWriter writer, Node node)
+  static void CopyTreeToArray(BinaryWriter writer, Node node)
   {
     ushort offset = 0;
     int nodePosition = (int)writer.Position;
 
-    writer.Add(node.IsLeaf ? node.Char : (char)0);
-    writer.Add(offset); // add a dummy offset which we'll replace later
+    writer.Write(node.IsLeaf ? node.Char : (char)0);
+    writer.Write(offset); // add a dummy offset which we'll replace later
 
     if(node.Left != null)
     {
@@ -290,7 +292,7 @@ public sealed class StringCompressor
     // update the dummy offset with the real offset
     long currentPosition = writer.Position;
     writer.Position = nodePosition + 2; // the offset is after the character, which is 2 bytes
-    writer.Add(offset);
+    writer.Write(offset);
     writer.Position = currentPosition;
   }
 
