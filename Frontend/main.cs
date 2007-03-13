@@ -23,9 +23,9 @@ static class App
   static App()
   {
     #if DEBUG
-    exeDir = "e:/";
+    exeDir = "d:/adammil/code/jappy/data";
     #else
-    exeDir = "e:/";//Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
+    exeDir = "d:/adammil/code/jappy/data";//Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
                    //       "dictionaries");
     #endif
   }
