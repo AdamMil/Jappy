@@ -34,6 +34,7 @@ namespace Jappy
       this.txtName = new System.Windows.Forms.TextBox();
       this.chkReadings = new System.Windows.Forms.CheckBox();
       this.chkExample = new System.Windows.Forms.CheckBox();
+      this.chkReversed = new System.Windows.Forms.CheckBox();
       lblName = new System.Windows.Forms.Label();
       btnOK = new System.Windows.Forms.Button();
       btnCancel = new System.Windows.Forms.Button();
@@ -52,7 +53,7 @@ namespace Jappy
       // 
       btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      btnOK.Location = new System.Drawing.Point(7, 86);
+      btnOK.Location = new System.Drawing.Point(7, 106);
       btnOK.Name = "btnOK";
       btnOK.Size = new System.Drawing.Size(75, 23);
       btnOK.TabIndex = 2;
@@ -64,7 +65,7 @@ namespace Jappy
       // 
       btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      btnCancel.Location = new System.Drawing.Point(89, 86);
+      btnCancel.Location = new System.Drawing.Point(89, 106);
       btnCancel.Name = "btnCancel";
       btnCancel.Size = new System.Drawing.Size(75, 23);
       btnCancel.TabIndex = 3;
@@ -85,20 +86,30 @@ namespace Jappy
       this.chkReadings.AutoSize = true;
       this.chkReadings.Location = new System.Drawing.Point(7, 35);
       this.chkReadings.Name = "chkReadings";
-      this.chkReadings.Size = new System.Drawing.Size(199, 18);
+      this.chkReadings.Size = new System.Drawing.Size(189, 18);
       this.chkReadings.TabIndex = 4;
-      this.chkReadings.Text = "Show &readings with phrase";
+      this.chkReadings.Text = "Hint &readings with phrase";
       this.chkReadings.UseVisualStyleBackColor = true;
       // 
       // chkExample
       // 
       this.chkExample.AutoSize = true;
-      this.chkExample.Location = new System.Drawing.Point(7, 59);
+      this.chkExample.Location = new System.Drawing.Point(7, 57);
       this.chkExample.Name = "chkExample";
-      this.chkExample.Size = new System.Drawing.Size(197, 18);
+      this.chkExample.Size = new System.Drawing.Size(187, 18);
       this.chkExample.TabIndex = 5;
-      this.chkExample.Text = "Show &example with phrase";
+      this.chkExample.Text = "Hint &example with phrase";
       this.chkExample.UseVisualStyleBackColor = true;
+      // 
+      // chkReversed
+      // 
+      this.chkReversed.AutoSize = true;
+      this.chkReversed.Location = new System.Drawing.Point(7, 79);
+      this.chkReversed.Name = "chkReversed";
+      this.chkReversed.Size = new System.Drawing.Size(159, 18);
+      this.chkReversed.TabIndex = 6;
+      this.chkReversed.Text = "Show re&versed cards";
+      this.chkReversed.UseVisualStyleBackColor = true;
       // 
       // StudyListDialog
       // 
@@ -106,7 +117,8 @@ namespace Jappy
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 14F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = btnCancel;
-      this.ClientSize = new System.Drawing.Size(288, 113);
+      this.ClientSize = new System.Drawing.Size(288, 133);
+      this.Controls.Add(this.chkReversed);
       this.Controls.Add(this.chkExample);
       this.Controls.Add(this.chkReadings);
       this.Controls.Add(btnCancel);
@@ -132,6 +144,7 @@ namespace Jappy
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.CheckBox chkReadings;
     private System.Windows.Forms.CheckBox chkExample;
+    private System.Windows.Forms.CheckBox chkReversed;
 
   }
 }

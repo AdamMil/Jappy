@@ -43,9 +43,10 @@ namespace Jappy
       System.Windows.Forms.ToolStripSeparator menuSep2;
       System.Windows.Forms.ToolStripSeparator menuSep3;
       System.Windows.Forms.ToolStripMenuItem settingsMenuItem;
-      System.Windows.Forms.ToolStripMenuItem goMenuItem;
+      System.Windows.Forms.ToolStripMenuItem resetAccuracyMenuItem;
       this.saveListMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveListAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.flashCardsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.output = new Jappy.DocumentRenderer();
       this.menuStrip = new System.Windows.Forms.MenuStrip();
       this.studyMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +66,7 @@ namespace Jappy
       menuSep2 = new System.Windows.Forms.ToolStripSeparator();
       menuSep3 = new System.Windows.Forms.ToolStripSeparator();
       settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      goMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      resetAccuracyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.menuStrip.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -219,15 +220,24 @@ namespace Jappy
       // settingsMenuItem
       // 
       settingsMenuItem.Name = "settingsMenuItem";
-      settingsMenuItem.Size = new System.Drawing.Size(175, 22);
+      settingsMenuItem.Size = new System.Drawing.Size(206, 22);
       settingsMenuItem.Text = "List &settings...";
       settingsMenuItem.Click += new System.EventHandler(this.settingsMenuItem_Click);
       // 
-      // goMenuItem
+      // resetAccuracyMenuItem
       // 
-      goMenuItem.Name = "goMenuItem";
-      goMenuItem.Size = new System.Drawing.Size(175, 22);
-      goMenuItem.Text = "&Go!";
+      resetAccuracyMenuItem.Name = "resetAccuracyMenuItem";
+      resetAccuracyMenuItem.Size = new System.Drawing.Size(206, 22);
+      resetAccuracyMenuItem.Text = "&Reset accuracy";
+      resetAccuracyMenuItem.Click += new System.EventHandler(this.resetAccuracyMenuItem_Click);
+      // 
+      // flashCardsMenuItem
+      // 
+      this.flashCardsMenuItem.Name = "flashCardsMenuItem";
+      this.flashCardsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
+      this.flashCardsMenuItem.Size = new System.Drawing.Size(206, 22);
+      this.flashCardsMenuItem.Text = "Show flash &cards...";
+      this.flashCardsMenuItem.Click += new System.EventHandler(this.flashCardsMenuItem_Click);
       // 
       // output
       // 
@@ -261,7 +271,8 @@ namespace Jappy
       this.studyMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newEntryMenuItem,
             settingsMenuItem,
-            goMenuItem});
+            resetAccuracyMenuItem,
+            this.flashCardsMenuItem});
       this.studyMenu.Name = "studyMenu";
       this.studyMenu.Size = new System.Drawing.Size(47, 20);
       this.studyMenu.Text = "&Study";
@@ -270,7 +281,7 @@ namespace Jappy
       // 
       this.newEntryMenuItem.Name = "newEntryMenuItem";
       this.newEntryMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-      this.newEntryMenuItem.Size = new System.Drawing.Size(175, 22);
+      this.newEntryMenuItem.Size = new System.Drawing.Size(206, 22);
       this.newEntryMenuItem.Text = "&New entry...";
       this.newEntryMenuItem.Click += new System.EventHandler(this.newEntryMenuItem_Click);
       // 
@@ -297,6 +308,7 @@ namespace Jappy
     private System.Windows.Forms.ToolStripMenuItem saveListAsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem studyMenu;
     private System.Windows.Forms.ToolStripMenuItem newEntryMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem flashCardsMenuItem;
 
   }
 }

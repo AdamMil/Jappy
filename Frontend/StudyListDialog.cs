@@ -29,18 +29,26 @@ partial class StudyListDialog : Form
     set { chkExample.Checked = value; }
   }
 
+  public bool ShowReversedCards
+  {
+    get { return chkReversed.Checked; }
+    set { chkReversed.Checked = value; }
+  }
+
   public void LoadList(StudyList list)
   {
-    ListName     = list.Name;
-    HintExample  = list.HintExample;
-    HintReadings = list.HintReadings;
+    ListName          = list.Name;
+    HintExample       = list.HintExample;
+    HintReadings      = list.HintReadings;
+    ShowReversedCards = list.ShowReversedCards;
   }
 
   public void SaveList(StudyList list)
   {
-    list.Name         = ListName;
-    list.HintExample  = HintExample;
-    list.HintReadings = HintReadings;
+    list.Name              = ListName;
+    list.HintExample       = HintExample;
+    list.HintReadings      = HintReadings;
+    list.ShowReversedCards = ShowReversedCards;
   }
 
   protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
