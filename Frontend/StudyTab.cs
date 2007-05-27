@@ -48,6 +48,7 @@ partial class StudyTab : TabBase
       StudyList.Item item = new StudyList.Item();
       dialog.SaveItem(item);
       AddEntry(item);
+      flashCardsMenuItem.Enabled = true;
       return true;
     }
     else
@@ -112,6 +113,12 @@ partial class StudyTab : TabBase
     }
   }
 
+  public void ResetAccuracy()
+  {
+    AssertListLoaded();
+    foreach(StudyList.Item item in list.Items) item.ShownCount = item.CorrectCount = 0;
+  }
+
   public bool SaveList()
   {
     return SaveList(false);
@@ -160,6 +167,19 @@ partial class StudyTab : TabBase
     }
   }
 
+  public void StartStudying()
+  {
+    AssertListLoaded();
+    if(List.Items.Count == 0) throw new InvalidOperationException("The study list is empty.");
+
+    CurrentState = State.Studying;
+    output.Clear();
+    output.Document.Root.Children.Add(new TextNode("Currently studying..."));
+
+    new StudyDialog(List).ShowDialog();
+    CurrentState = State.ShowingItems;
+  }
+
   public bool TryCloseList()
   {
     DialogResult result = !IsListLoaded || !list.IsModified ? DialogResult.No :
@@ -202,7 +222,7 @@ partial class StudyTab : TabBase
 
   enum State
   {
-    Unloaded, ShowingItems
+    Unloaded, ShowingItems, Studying
   }
 
   sealed class EditNode : LinkNode
@@ -291,7 +311,14 @@ partial class StudyTab : TabBase
   {
     CurrentState = State.ShowingItems;
     EnableStudyMenu(true);
-    list.Modified += delegate(object o, EventArgs e) { UpdateDocument(); };
+    list.Modified += delegate { OnListModified(); };
+    flashCardsMenuItem.Enabled = list.Items.Count != 0;
+  }
+
+  void OnListModified()
+  {
+    UpdateDocument();
+    flashCardsMenuItem.Enabled = list.Items.Count != 0;
   }
 
   void OutputListEntries()
@@ -321,6 +348,9 @@ partial class StudyTab : TabBase
 
       case State.ShowingItems:
         OutputListEntries();
+        break;
+
+      case State.Studying: // don't update the document while studying
         break;
 
       default: throw new NotImplementedException();
@@ -378,6 +408,16 @@ partial class StudyTab : TabBase
   void newEntryMenuItem_Click(object sender, EventArgs e)
   {
     AddEntry();
+  }
+
+  void resetAccuracyMenuItem_Click(object sender, EventArgs e)
+  {
+    ResetAccuracy();
+  }
+
+  void flashCardsMenuItem_Click(object sender, EventArgs e)
+  {
+    StartStudying();
   }
 
   void output_MouseEnter(object sender, EventArgs e)
@@ -755,6 +795,19 @@ class StudyList
     }
   }
 
+  public bool ShowReversedCards
+  {
+    get { return showReversed; }
+    set
+    {
+      if(value != showReversed)
+      {
+        showReversed = value;
+        SetModified();
+      }
+    }
+  }
+
   public ItemCollection Items
   {
     get { return items; }
@@ -790,7 +843,10 @@ class StudyList
 
     attr = el.Attributes["hintExamples"];
     hintExamples = attr != null && XmlConvert.ToBoolean(attr.Value);
-    
+
+    attr = el.Attributes["showReversed"];
+    showReversed = attr != null && XmlConvert.ToBoolean(attr.Value);
+
     el = (XmlElement)el.SelectSingleNode("items");
 
     items.Clear();
@@ -813,6 +869,7 @@ class StudyList
     writer.WriteAttributeString("name", Name == null ? "" : Name);
     writer.WriteAttributeString("hintReadings", hintReadings ? "true" : "false");
     writer.WriteAttributeString("hintExamples", hintExamples ? "true" : "false");
+    writer.WriteAttributeString("showReversed", hintExamples ? "true" : "false");
     writer.WriteStartElement("items");
     foreach(Item item in items)
     {
@@ -833,7 +890,7 @@ class StudyList
 
   readonly ItemCollection items;
   string name = string.Empty;
-  bool isModified, hintReadings, hintExamples;
+  bool isModified, hintReadings, hintExamples, showReversed;
 }
 #endregion
 
