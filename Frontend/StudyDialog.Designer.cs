@@ -43,9 +43,10 @@ namespace Jappy
       // 
       // btnNo
       // 
-      btnNo.Location = new System.Drawing.Point(326, 146);
+      btnNo.Location = new System.Drawing.Point(435, 157);
+      btnNo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnNo.Name = "btnNo";
-      btnNo.Size = new System.Drawing.Size(44, 23);
+      btnNo.Size = new System.Drawing.Size(59, 25);
       btnNo.TabIndex = 2;
       btnNo.Text = "&No";
       btnNo.UseVisualStyleBackColor = true;
@@ -53,9 +54,10 @@ namespace Jappy
       // 
       // btnYes
       // 
-      btnYes.Location = new System.Drawing.Point(277, 146);
+      btnYes.Location = new System.Drawing.Point(369, 157);
+      btnYes.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnYes.Name = "btnYes";
-      btnYes.Size = new System.Drawing.Size(44, 23);
+      btnYes.Size = new System.Drawing.Size(59, 25);
       btnYes.TabIndex = 1;
       btnYes.Text = "&Yes";
       btnYes.UseVisualStyleBackColor = true;
@@ -64,18 +66,20 @@ namespace Jappy
       // lblDoYouKnow
       // 
       lblDoYouKnow.AutoSize = true;
-      lblDoYouKnow.Location = new System.Drawing.Point(0, 151);
+      lblDoYouKnow.Location = new System.Drawing.Point(0, 163);
+      lblDoYouKnow.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblDoYouKnow.Name = "lblDoYouKnow";
-      lblDoYouKnow.Size = new System.Drawing.Size(277, 13);
+      lblDoYouKnow.Size = new System.Drawing.Size(365, 14);
       lblDoYouKnow.TabIndex = 0;
       lblDoYouKnow.Text = "Do you know the answer (press space to double check)?";
       lblDoYouKnow.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // btnShowAnswer
       // 
-      btnShowAnswer.Location = new System.Drawing.Point(375, 146);
+      btnShowAnswer.Location = new System.Drawing.Point(500, 157);
+      btnShowAnswer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnShowAnswer.Name = "btnShowAnswer";
-      btnShowAnswer.Size = new System.Drawing.Size(83, 23);
+      btnShowAnswer.Size = new System.Drawing.Size(111, 25);
       btnShowAnswer.TabIndex = 3;
       btnShowAnswer.Text = "Show &answer";
       btnShowAnswer.UseVisualStyleBackColor = true;
@@ -83,9 +87,10 @@ namespace Jappy
       // 
       // btnFinish
       // 
-      btnFinish.Location = new System.Drawing.Point(470, 146);
+      btnFinish.Location = new System.Drawing.Point(627, 157);
+      btnFinish.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnFinish.Name = "btnFinish";
-      btnFinish.Size = new System.Drawing.Size(83, 23);
+      btnFinish.Size = new System.Drawing.Size(111, 25);
       btnFinish.TabIndex = 4;
       btnFinish.Text = "&Stop studying";
       btnFinish.UseVisualStyleBackColor = true;
@@ -99,26 +104,29 @@ namespace Jappy
             | System.Windows.Forms.AnchorStyles.Right)));
       this.area.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
       this.area.Location = new System.Drawing.Point(0, 0);
+      this.area.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.area.Name = "area";
       this.area.SelectionLength = 0;
       this.area.SelectionStart = 0;
-      this.area.Size = new System.Drawing.Size(556, 140);
+      this.area.Size = new System.Drawing.Size(741, 151);
       this.area.TabIndex = 0;
       this.area.TabStop = false;
       // 
       // StudyDialog
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 14F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(556, 172);
+      this.ClientSize = new System.Drawing.Size(741, 185);
       this.Controls.Add(btnShowAnswer);
       this.Controls.Add(btnNo);
       this.Controls.Add(btnYes);
       this.Controls.Add(lblDoYouKnow);
       this.Controls.Add(btnFinish);
       this.Controls.Add(this.area);
+      this.Font = new System.Drawing.Font("Verdana", 9F);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
       this.KeyPreview = true;
+      this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.Name = "StudyDialog";

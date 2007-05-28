@@ -48,8 +48,13 @@ class LinkLabel : Label
 #endregion
 
 #region TabBase
-class TabBase : UserControl
+abstract class TabBase : UserControl
 {
+  public abstract DocumentRenderer OutputArea
+  {
+    get;
+  }
+
   protected MainForm Form
   {
     get { return (MainForm)FindForm(); }

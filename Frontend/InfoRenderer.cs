@@ -885,6 +885,12 @@ class DocumentRenderer : Control
     get { return SelectionLength == 0 ? string.Empty : Document.Text.Substring(SelectionStart, SelectionLength); }
   }
 
+  public override string Text
+  {
+    get { return document.Text; }
+    set { throw new NotSupportedException("Setting Text is not supported. Use the DOM."); }
+  }
+
   public void Clear()
   {
     Document.Clear();
@@ -896,11 +902,17 @@ class DocumentRenderer : Control
     if(SelectionLength != 0) Clipboard.SetText(SelectedText);
   }
 
+  public DocumentNode GetNodeFromOffset(int offset)
+  {
+    Span span = GetRegionFromOffset(offset) as Span;
+    return span == null ? null : span.Node;
+  }
+
   public DocumentNode GetNodeFromPosition(Point pt)
   {
     Layout();
     pt.Offset(BorderWidth, BorderWidth + (scrollBar == null ? 0 : scrollBar.Value));
-    Span span = rootBlock.Bounds.Contains(pt) ? GetNodeFromPosition(pt, rootBlock) as Span : null;
+    Span span = rootBlock.Bounds.Contains(pt) ? GetRegionFromPosition(pt, rootBlock) as Span : null;
     return span == null ? null : span.Node;
   }
 
@@ -955,6 +967,18 @@ class DocumentRenderer : Control
   public void SelectAll()
   {
     Select(0, Document.Text.Length);
+  }
+
+  public void ScrollTo(int offset)
+  {
+    if(scrollBar != null)
+    {
+      TextRegion region = GetRegionFromOffset(offset);
+      if(region.AbsoluteTop < scrollBar.Value || region.AbsoluteBottom > scrollBar.Value+Height)
+      {
+        scrollBar.Value = Math.Min(scrollBar.Maximum-scrollBar.LargeChange, Math.Max(0, region.AbsoluteTop-Height/2));
+      }
+    }
   }
 
   protected override void OnPaint(PaintEventArgs e)
@@ -1019,6 +1043,31 @@ class DocumentRenderer : Control
     {
       get { return Bounds.Location; }
       set { Bounds.Location = value; }
+    }
+
+    public int AbsoluteLeft
+    {
+      get { return AbsolutePosition.X; }
+    }
+
+    public int AbsoluteTop
+    {
+      get { return AbsolutePosition.Y; }
+    }
+
+    public int AbsoluteRight
+    {
+      get { return AbsolutePosition.X+Width; }
+    }
+
+    public int AbsoluteBottom
+    {
+      get { return AbsolutePosition.Y+Height; }
+    }
+
+    public Rectangle AbsoluteBounds
+    {
+      get { return new Rectangle(AbsolutePosition, Size); }
     }
 
     public Size Size
@@ -1100,7 +1149,11 @@ class DocumentRenderer : Control
       }
     }
 
+    /// <summary>The region's bounds, relative to the parent region.</summary>
     public Rectangle Bounds;
+    /// <summary>The region's absolute position in the document.</summary>
+    public Point AbsolutePosition;
+    /// <summary>The span of text that this region contains.</summary>
     public TextSpan TextSpan;
     
     // returns the distance between a point and a rectangle, or zero if the point is contained within the rect.
@@ -1331,17 +1384,20 @@ class DocumentRenderer : Control
       {
         rootBlock = CreateBlock(gdi, document.Root.Children, RenderRect.Width);
       }
-      
+
+      UpdateOffsets(rootBlock, rootBlock.Position);
       ResizeScrollbar(gdi);
     }
   }
 
-  static BlockBase CreateBlock(Graphics gdi, IList<DocumentNode> blockNodes, int availableWidth)
+  /// <summary>Creates a block node that contains the given list of nodes.</summary>
+  static BlockBase CreateBlock(Graphics gdi, IList<DocumentNode> nodes, int availableWidth)
   {
     BlockBase newBlock;
 
+    // first, determine whether there any of the nodes are block nodes
     bool allInline = true;
-    foreach(DocumentNode child in blockNodes)
+    foreach(DocumentNode child in nodes)
     {
       if(child.IsBlockNode)
       {
@@ -1350,20 +1406,21 @@ class DocumentRenderer : Control
       }
     }
     
-    if(allInline)
+    if(allInline) // if there are no block nodes, lay out the spans into a block
     {
-      newBlock = LayoutLines(gdi, blockNodes, availableWidth);
+      newBlock = LayoutLines(gdi, nodes, availableWidth);
     }
-    else
+    else // otherwise, one or more of the child nodes is a block
     {
-      Block blockBlock = new Block();
-      List<BlockBase> childBlocks = new List<BlockBase>(blockNodes.Count);
+      List<BlockBase> childBlocks = new List<BlockBase>(nodes.Count);
+      List<DocumentNode> anonymous = null; // a list of anonymous inline nodes that will form the next block
 
-      List<DocumentNode> anonymous = null;
-      foreach(DocumentNode child in blockNodes)
+      // go through the child nodes, collecting inline nodes into blocks, and adding all blocks to childBlocks
+      foreach(DocumentNode child in nodes)
       {
         if(child.IsBlockNode)
         {
+          // if we have collected some inline nodes, add them to the previous block node, and clear the lits
           if(anonymous != null && anonymous.Count != 0)
           {
             childBlocks.Add(LayoutLines(gdi, anonymous, availableWidth));
@@ -1383,17 +1440,19 @@ class DocumentRenderer : Control
         }
       }
 
+      // if we have some inline nodes, create a final block to hold them
       if(anonymous != null && anonymous.Count != 0)
       {
         childBlocks.Add(LayoutLines(gdi, anonymous, availableWidth));
       }
 
-      if(childBlocks.Count == 1)
+      if(childBlocks.Count == 1) // if there was only one block, we can simply return it
       {
         newBlock = childBlocks[0];
       }
-      else
+      else // otherwise, we'll need to create a block node to hold the blocks
       {
+        Block blockBlock = new Block();
         blockBlock.Blocks = childBlocks.ToArray();
         foreach(BlockBase child in blockBlock.Blocks)
         {
@@ -1540,6 +1599,20 @@ class DocumentRenderer : Control
       }
     }
     return block;
+  }
+
+  static void UpdateOffsets(TextRegion region, Point absPosition)
+  {
+    region.AbsolutePosition = absPosition;
+
+    TextRegion[] children = region.Children;
+    if(children != null)
+    {
+      foreach(TextRegion child in children)
+      {
+        UpdateOffsets(child, new Point(absPosition.X+child.Left, absPosition.Y+child.Top));
+      }
+    }
   }
 
   void InvalidateLayout()
@@ -1766,7 +1839,30 @@ class DocumentRenderer : Control
     else return false;
   }
 
-  TextRegion GetNodeFromPosition(Point pt, TextRegion parent)
+  TextRegion GetRegionFromOffset(int offset)
+  {
+    if(offset < 0 || offset >= document.Text.Length) throw new ArgumentOutOfRangeException();
+    Layout();
+    return GetRegionFromOffset(offset, rootBlock);
+  }
+
+  /// <summary>Given a parent node containing the offset, recurses into a child node that contains the offset if it
+  /// exists, and returns the parent node otherwise.
+  /// </summary>
+  TextRegion GetRegionFromOffset(int offset, TextRegion parent)
+  {
+    TextRegion[] children = parent.Children;
+    if(children != null)
+    {
+      foreach(TextRegion child in children)
+      {
+        if(child.TextSpan.Contains(offset)) return GetRegionFromOffset(offset, child);
+      }
+    }
+    return parent;
+  }
+
+  TextRegion GetRegionFromPosition(Point pt, TextRegion parent)
   {
     TextRegion[] children = parent.Children;
     if(children != null)
@@ -1777,7 +1873,7 @@ class DocumentRenderer : Control
         if(child.Bounds.Contains(pt))
         {
           pt = new Point(pt.X-child.Left, pt.Y-child.Top);
-          TextRegion lowest = GetNodeFromPosition(pt, child);
+          TextRegion lowest = GetRegionFromPosition(pt, child);
           if(lowest != null) return lowest;
           break;
         }

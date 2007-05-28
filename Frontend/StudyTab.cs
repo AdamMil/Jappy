@@ -38,6 +38,11 @@ partial class StudyTab : TabBase
     get { return list; }
   }
 
+  public override DocumentRenderer OutputArea
+  {
+    get { return output; }
+  }
+
   public bool AddEntry()
   {
     AssertListLoaded();

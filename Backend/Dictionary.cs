@@ -94,15 +94,15 @@ public class DefaultSearchStrategy : SearchStrategy
   {
     if((piece.Type & PieceType.Quoted) == 0)
     {
-      if(piece.Text.StartsWith("*"))
-      {
-        piece.Text = piece.Text.Substring(1);
-        piece.Flags &= ~SearchFlag.MatchStart;
-      }
       if(piece.Text.EndsWith("*"))
       {
         piece.Text = piece.Text.Substring(0, piece.Text.Length-1);
         piece.Flags &= ~SearchFlag.MatchEnd;
+      }
+      if(piece.Text.StartsWith("*"))
+      {
+        piece.Text = piece.Text.Substring(1);
+        piece.Flags &= ~SearchFlag.MatchStart;
       }
     }
   }

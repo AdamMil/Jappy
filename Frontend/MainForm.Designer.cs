@@ -32,11 +32,14 @@ namespace Jappy
       System.Windows.Forms.MenuStrip menuStrip;
       System.Windows.Forms.ToolStripMenuItem fileMenu;
       System.Windows.Forms.ToolStripMenuItem exitMenuItem;
+      System.Windows.Forms.ToolStripMenuItem viewMenuItem;
+      System.Windows.Forms.ToolStripMenuItem findMenuItem;
       System.Windows.Forms.StatusStrip statusBar;
       Jappy.DictionarySearchTab dictionarySearchControl;
       Jappy.TranslateTab translateControl;
       Jappy.ExampleSearchTab exampleSearchControl;
       Jappy.StudyTab studyTabControl;
+      this.findAgainMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.statusText = new System.Windows.Forms.ToolStripStatusLabel();
       this.tabControl = new System.Windows.Forms.TabControl();
       this.dictionaryPage = new System.Windows.Forms.TabPage();
@@ -48,6 +51,8 @@ namespace Jappy
       menuStrip = new System.Windows.Forms.MenuStrip();
       fileMenu = new System.Windows.Forms.ToolStripMenuItem();
       exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      findMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       statusBar = new System.Windows.Forms.StatusStrip();
       dictionarySearchControl = new Jappy.DictionarySearchTab();
       translateControl = new Jappy.TranslateTab();
@@ -65,7 +70,8 @@ namespace Jappy
       // menuStrip
       // 
       menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            fileMenu});
+            fileMenu,
+            viewMenuItem});
       menuStrip.Location = new System.Drawing.Point(0, 0);
       menuStrip.Name = "menuStrip";
       menuStrip.Size = new System.Drawing.Size(752, 24);
@@ -87,6 +93,32 @@ namespace Jappy
       exitMenuItem.Size = new System.Drawing.Size(132, 22);
       exitMenuItem.Text = "E&xit";
       exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
+      // 
+      // viewMenuItem
+      // 
+      viewMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            findMenuItem,
+            this.findAgainMenuItem});
+      viewMenuItem.Name = "viewMenuItem";
+      viewMenuItem.Size = new System.Drawing.Size(41, 20);
+      viewMenuItem.Text = "&View";
+      viewMenuItem.DropDownOpening += new System.EventHandler(this.viewMenuItem_DropDownOpening);
+      // 
+      // findMenuItem
+      // 
+      findMenuItem.Name = "findMenuItem";
+      findMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
+      findMenuItem.Size = new System.Drawing.Size(152, 22);
+      findMenuItem.Text = "&Find...";
+      findMenuItem.Click += new System.EventHandler(this.findMenuItem_Click);
+      // 
+      // findAgainMenuItem
+      // 
+      this.findAgainMenuItem.Name = "findAgainMenuItem";
+      this.findAgainMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
+      this.findAgainMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.findAgainMenuItem.Text = "Find &again";
+      this.findAgainMenuItem.Click += new System.EventHandler(this.findAgainMenuItem_Click);
       // 
       // statusBar
       // 
@@ -123,7 +155,7 @@ namespace Jappy
       translateControl.Location = new System.Drawing.Point(0, 0);
       translateControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       translateControl.Name = "translateControl";
-      translateControl.Size = new System.Drawing.Size(566, 398);
+      translateControl.Size = new System.Drawing.Size(744, 458);
       translateControl.TabIndex = 0;
       // 
       // exampleSearchControl
@@ -133,7 +165,7 @@ namespace Jappy
       exampleSearchControl.Location = new System.Drawing.Point(0, 0);
       exampleSearchControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       exampleSearchControl.Name = "exampleSearchControl";
-      exampleSearchControl.Size = new System.Drawing.Size(566, 398);
+      exampleSearchControl.Size = new System.Drawing.Size(744, 458);
       exampleSearchControl.TabIndex = 0;
       // 
       // studyTabControl
@@ -141,7 +173,7 @@ namespace Jappy
       studyTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       studyTabControl.Location = new System.Drawing.Point(3, 3);
       studyTabControl.Name = "studyTabControl";
-      studyTabControl.Size = new System.Drawing.Size(560, 392);
+      studyTabControl.Size = new System.Drawing.Size(738, 452);
       studyTabControl.TabIndex = 0;
       // 
       // tabControl
@@ -179,7 +211,7 @@ namespace Jappy
       this.translatePage.Controls.Add(translateControl);
       this.translatePage.Location = new System.Drawing.Point(4, 25);
       this.translatePage.Name = "translatePage";
-      this.translatePage.Size = new System.Drawing.Size(566, 398);
+      this.translatePage.Size = new System.Drawing.Size(744, 458);
       this.translatePage.TabIndex = 2;
       this.translatePage.Text = "Translate";
       this.translatePage.ToolTipText = "Translate words in Japanese text.";
@@ -190,7 +222,7 @@ namespace Jappy
       this.examplePage.Controls.Add(exampleSearchControl);
       this.examplePage.Location = new System.Drawing.Point(4, 25);
       this.examplePage.Name = "examplePage";
-      this.examplePage.Size = new System.Drawing.Size(566, 398);
+      this.examplePage.Size = new System.Drawing.Size(744, 458);
       this.examplePage.TabIndex = 3;
       this.examplePage.Text = "Examples";
       this.examplePage.ToolTipText = "Search example sentences.";
@@ -202,7 +234,7 @@ namespace Jappy
       this.studyPage.Location = new System.Drawing.Point(4, 25);
       this.studyPage.Name = "studyPage";
       this.studyPage.Padding = new System.Windows.Forms.Padding(3);
-      this.studyPage.Size = new System.Drawing.Size(566, 398);
+      this.studyPage.Size = new System.Drawing.Size(744, 458);
       this.studyPage.TabIndex = 1;
       this.studyPage.Text = "Study";
       this.studyPage.ToolTipText = "Study words and kanji.";
@@ -256,5 +288,6 @@ namespace Jappy
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.NotifyIcon notifyIcon;
     private System.Windows.Forms.TabPage examplePage;
+    private System.Windows.Forms.ToolStripMenuItem findAgainMenuItem;
   }
 }
