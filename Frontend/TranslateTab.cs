@@ -24,6 +24,11 @@ partial class TranslateTab : TabBase
     inflectedStyle.ForeColor = Color.Green;
   }
 
+  public override DocumentRenderer OutputArea
+  {
+    get { return output; }
+  }
+
   public void PerformTranslation(string text)
   {
     if(text == null) throw new ArgumentNullException();

@@ -23,7 +23,7 @@ static class App
   static App()
   {
     #if DEBUG
-    exeDir = "d:/adammil/code/jappy/data";
+    exeDir = "d:/adammil/code/jappy/frontend/bin/release/dictionaries";
     #else
     exeDir = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
                           "dictionaries");
@@ -105,8 +105,8 @@ static class App
 //charDict.Save("e:/kanji.dict");
 
 //JapaneseDictionary wordDict = new JapaneseDictionary();
-//wordDict.ImportJMDict(new System.IO.Compression.GZipStream(System.IO.File.OpenRead(@"e:/words.xml.gz"), System.IO.Compression.CompressionMode.Decompress));
-//wordDict.Save("e:/words.index", "e:/words.dict");
+//wordDict.ImportJMDict(new System.IO.Compression.GZipStream(System.IO.File.OpenRead(Path.Combine(exeDir, "words.xml.gz")), System.IO.Compression.CompressionMode.Decompress));
+//wordDict.Save(Path.Combine(exeDir, "words.index"), Path.Combine(exeDir, "words.dict"));
 
 //JapaneseDictionary nameDict = new JapaneseDictionary();
 ///nameDict.ImportJMDict(new System.IO.Compression.GZipStream(System.IO.File.OpenRead(@"e:/names.xml.gz"), System.IO.Compression.CompressionMode.Decompress));
