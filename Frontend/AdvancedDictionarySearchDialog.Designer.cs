@@ -55,7 +55,7 @@ namespace Jappy
       btnSearch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnSearch.Name = "btnSearch";
       btnSearch.Size = new System.Drawing.Size(100, 25);
-      btnSearch.TabIndex = 5;
+      btnSearch.TabIndex = 9;
       btnSearch.Text = "&Search";
       btnSearch.UseVisualStyleBackColor = true;
       btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
@@ -68,7 +68,7 @@ namespace Jappy
       btnCancel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       btnCancel.Name = "btnCancel";
       btnCancel.Size = new System.Drawing.Size(100, 25);
-      btnCancel.TabIndex = 6;
+      btnCancel.TabIndex = 10;
       btnCancel.Text = "Cancel";
       btnCancel.UseVisualStyleBackColor = true;
       // 
@@ -88,7 +88,7 @@ namespace Jappy
       lblFrequency.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblFrequency.Name = "lblFrequency";
       lblFrequency.Size = new System.Drawing.Size(149, 19);
-      lblFrequency.TabIndex = 2;
+      lblFrequency.TabIndex = 3;
       lblFrequency.Text = "&Frequency Threshold:";
       lblFrequency.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
@@ -99,7 +99,7 @@ namespace Jappy
       lblPOS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblPOS.Name = "lblPOS";
       lblPOS.Size = new System.Drawing.Size(106, 14);
-      lblPOS.TabIndex = 4;
+      lblPOS.TabIndex = 7;
       lblPOS.Text = "&Parts of Speech";
       lblPOS.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
       // 
@@ -109,7 +109,7 @@ namespace Jappy
       lblItemLimit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       lblItemLimit.Name = "lblItemLimit";
       lblItemLimit.Size = new System.Drawing.Size(85, 19);
-      lblItemLimit.TabIndex = 3;
+      lblItemLimit.TabIndex = 5;
       lblItemLimit.Text = "Item &Limit:";
       lblItemLimit.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
@@ -129,7 +129,7 @@ namespace Jappy
       this.txtFrequency.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.txtFrequency.Name = "txtFrequency";
       this.txtFrequency.Size = new System.Drawing.Size(47, 22);
-      this.txtFrequency.TabIndex = 2;
+      this.txtFrequency.TabIndex = 4;
       this.txtFrequency.Text = "0";
       // 
       // pos
@@ -139,7 +139,7 @@ namespace Jappy
       this.pos.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.pos.Name = "pos";
       this.pos.Size = new System.Drawing.Size(309, 106);
-      this.pos.TabIndex = 4;
+      this.pos.TabIndex = 8;
       // 
       // txtLimit
       // 
@@ -147,7 +147,7 @@ namespace Jappy
       this.txtLimit.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.txtLimit.Name = "txtLimit";
       this.txtLimit.Size = new System.Drawing.Size(47, 22);
-      this.txtLimit.TabIndex = 3;
+      this.txtLimit.TabIndex = 6;
       this.txtLimit.Text = "100";
       // 
       // cmbDictionary
@@ -157,7 +157,7 @@ namespace Jappy
       this.cmbDictionary.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.cmbDictionary.Name = "cmbDictionary";
       this.cmbDictionary.Size = new System.Drawing.Size(160, 22);
-      this.cmbDictionary.TabIndex = 1;
+      this.cmbDictionary.TabIndex = 2;
       // 
       // AdvancedDictionarySearchDialog
       // 
