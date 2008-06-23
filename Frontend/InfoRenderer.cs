@@ -134,8 +134,9 @@ class DocumentNode
 
     protected override void SetItem(int index, DocumentNode item)
     {
-      this[index].OnNodeRemoved(owner);
       ValidateNewItem(item);
+
+      this[index].OnNodeRemoved(owner);
       base.SetItem(index, item);
       item.OnNodeAdded(owner, index);
       owner.NodeChanged();
@@ -1439,7 +1440,7 @@ class DocumentRenderer : Control
       {
         if(child.IsBlockNode)
         {
-          // if we have collected some inline nodes, add them to the previous block node, and clear the lits
+          // if we have collected some inline nodes, add them to the previous block node, and clear the list
           if(anonymous != null && anonymous.Count != 0)
           {
             childBlocks.Add(LayoutLines(gdi, anonymous, availableWidth));
@@ -1831,7 +1832,7 @@ class DocumentRenderer : Control
     get
     {
       Rectangle rect = this.ClientRectangle;
-      int borderWidth = BorderWidth + 1; // add one extra pixel so the text doesn't but up against the border
+      int borderWidth = BorderWidth + 1; // add one extra pixel so the text doesn't butt up against the border
       rect.Inflate(-borderWidth, -borderWidth);
       if(scrollBar != null) rect.Width -= scrollBar.Width; // account for the scroll bar
       return rect;

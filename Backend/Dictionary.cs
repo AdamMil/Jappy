@@ -33,6 +33,13 @@ public enum PieceType
 
 public struct SearchPiece
 {
+  public SearchPiece(string text, PieceType type, SearchFlag flags)
+  {
+    Text  = text;
+    Type  = type;
+    Flags = flags;
+  }
+
   public string Text;
   public PieceType Type;
   public SearchFlag Flags;
