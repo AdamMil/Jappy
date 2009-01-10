@@ -46,7 +46,7 @@
       <DependentUpon>AdvancedDictionarySearchDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls.cs">
-      <SubType>Component</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="DictionarySearchTab.cs">
       <SubType>UserControl</SubType>
