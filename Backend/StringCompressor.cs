@@ -265,8 +265,8 @@ public sealed class StringCompressor
     uint code;
     if(!inMemoryMap.TryGetValue(c, out code))
     {
-      throw new ArgumentException("Input contains a character that was not present in the strings "+
-                                    "used to build the compressor.");
+      throw new ArgumentException("The input contains a character that was not present in the strings "+
+                                  "used to build the compressor.");
     }
 
     uint codeLength = GetLength(code);
